@@ -1,234 +1,228 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Verifier ✨</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decoder</title>
   <style>
-    :root {
-      --bg-1: #050d1f;
-      --bg-2: #0f1c35;
-      --card: rgba(255,255,255,0.07);
-      --muted: #94a3b8;
-      --accent-a: #7c3aed;
-      --accent-b: #06b6d4;
-      --success: #10b981;
-      --danger: #ef4444;
-      --radius: 14px;
-      --max-width: 860px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-      --ui: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    * {
+      box-sizing: border-box;
     }
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
     body {
-      font-family: var(--ui);
-      color: #e6eef8;
-      background: radial-gradient(circle at 20% 20%, #0a1630, #030712 80%);
+      background: radial-gradient(circle at top left, #0a0f1f, #000);
+      color: #e2e8f0;
+      font-family: "Poppins", system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
       overflow: hidden;
-      -webkit-font-smoothing: antialiased;
+      position: relative;
     }
 
-    /* === Particles === */
-    #particles {
+    canvas#particles {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .particle {
-      position: absolute;
-      width: 4px; height: 4px;
-      background: radial-gradient(circle, #7c3aed, transparent);
-      border-radius: 50%;
-      opacity: 0.8;
-      animation: float 12s linear infinite;
-    }
-    @keyframes float {
-      0% { transform: translateY(100vh) scale(0.8); opacity: 0.3; }
-      50% { opacity: 1; }
-      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
     }
 
-    .wrap {
+    h1 {
+      color: #38bdf8;
+      margin-bottom: 20px;
+      text-align: center;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px #38bdf8;
+    }
+
+    .box {
+      backdrop-filter: blur(20px);
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 35px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
       position: relative;
       z-index: 2;
-      max-width: var(--max-width);
-      margin: 60px auto;
-      padding: 24px;
+      transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
     }
 
-    header { text-align: center; margin-bottom: 20px; }
-    header h1 { font-size: 28px; margin: 0; }
-    header p { color: var(--muted); font-size: 14px; }
-
-    .card {
-      background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: var(--radius);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-      backdrop-filter: blur(14px);
-      padding: 20px;
+    .box:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.35);
     }
 
-    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
-    textarea, input {
-      width:100%;
-      padding:12px 14px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
-      color:inherit;
-      font-size:15px;
-      outline:none;
-      transition: border-color 0.3s, background 0.3s;
-    }
-    textarea:focus, input:focus {
-      border-color: var(--accent-b);
-      background: rgba(255,255,255,0.08);
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #cbd5e1;
     }
 
-    .actions { margin-top:14px; display:flex; gap:10px; }
-    button {
-      flex:1;
-      padding:10px 16px;
-      border-radius:10px;
-      border:none;
-      font-weight:600;
-      cursor:pointer;
-      transition: all 0.25s ease;
-    }
-    .btn-primary {
-      background: linear-gradient(90deg,var(--accent-a),var(--accent-b));
-      color:#fff;
-      box-shadow:0 6px 20px rgba(124,58,237,0.3);
-    }
-    .btn-primary:hover { filter: brightness(1.15); }
-    .btn-ghost {
-      background: transparent;
-      border:1px solid rgba(255,255,255,0.15);
-      color: var(--muted);
-    }
-    .btn-ghost:hover { color:#fff; border-color:rgba(255,255,255,0.4); }
-
-    .result {
-      margin-top:16px;
-      padding:14px;
-      border-radius:10px;
-      background: rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.05);
-      font-size:15px;
-    }
-
-    .coupon {
-      display:inline-block;
-      padding:8px 10px;
-      border-radius:8px;
-      background: rgba(255,255,255,0.08);
-      font-family: var(--mono);
-      font-weight:600;
-      letter-spacing:0.04em;
-      color:#fff;
-      user-select: all;
-    }
-
-    footer {
-      margin-top:20px;
-      text-align:center;
-      font-size:13px;
-      color:var(--muted);
-    }
-  /* Mobile adjustments */
-  @media (max-width: 640px) {
-    .wrap {
-      margin: 30px 16px;
-      padding: 16px;
-    }
-
-    header h1 {
-      font-size: 24px;
-    }
-
-    header p {
-      font-size: 13px;
-    }
-
-    .card {
-      padding: 16px;
-    }
-
-    textarea, input {
-      font-size: 14px;
-      padding: 10px 12px;
-    }
-
-    .actions {
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    button {
-      font-size: 14px;
-      padding: 10px;
-    }
-
-    .result {
-      font-size: 14px;
+    input {
+      width: 100%;
       padding: 12px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(51, 65, 85, 0.8);
+      color: #f8fafc;
+      font-size: 1rem;
+      outline: none;
+      transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     }
 
-    .coupon {
-      font-size: 0.95rem;
-      padding: 6px 8px;
+    input:focus {
+      background: rgba(56, 189, 248, 0.1);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
     }
-  }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #38bdf8, #3b82f6);
+      color: #0f172a;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+    }
+
+    pre {
+      margin-top: 25px;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: #93c5fd;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      color: #475569;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
-
 <body>
-  <div id="particles"></div>
+  <canvas id="particles"></canvas>
 
-  <div class="wrap">
-    <header>
-      <h1>Verifier</h1>
-      <p>Paste your Base64 message and amount to verify.</p>
-    </header>
-
-    <div class="card">
-      <label>Base64 encoded message</label>
-      <textarea id="encoded" rows="4" placeholder="paste encoded message here"></textarea>
-
-      <label>Target amount (number)</label>
-      <input id="amount" type="number" value="0" />
-
-      <div class="actions">
-        <button id="checkBtn" class="btn-primary">Verify</button>
-        <button type="reset" class="btn-ghost" onclick="document.getElementById('output').style.display='none'">Clear</button>
-      </div>
-
-      <div id="output" class="result" style="display:none;"></div>
-    </div>
-
-    <footer>✨ Cryptalis Verifier</footer>
+  <div class="box">
+    <h1>✨ Decoder</h1>
+    <label>Amount:</label>
+    <input id="amount" type="number" placeholder="Enter amount">
+    <label>Base64 Hash:</label>
+    <input id="hash" type="text" placeholder="Enter Base64 hash">
+    <button onclick="verify()">Verify</button>
+    <pre id="output">Result will appear here...</pre>
+    <div class="footer">Made with 💎</div>
   </div>
 
-  <script src="./script.js"></script>
-
   <script>
-    // === Floating particles ===
-    const container = document.getElementById('particles');
-    for (let i=0; i<40; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      const size = Math.random() * 3 + 2;
-      p.style.width = p.style.height = `${size}px`;
-      p.style.left = `${Math.random()*100}%`;
-      p.style.animationDuration = `${8 + Math.random()*8}s`;
-      p.style.animationDelay = `${Math.random()*12}s`;
-      container.appendChild(p);
+    // Particle background
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.7;
+        this.speedY = (Math.random() - 0.5) * 0.7;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+      }
+      draw() {
+        ctx.fillStyle = "rgba(56,189,248,0.8)";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles(count = 80) {
+      particles = [];
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.update();
+        p.draw();
+        for (let j = i; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            ctx.strokeStyle = `rgba(56,189,248,${1 - dist / 100})`;
+            ctx.lineWidth = 0.2;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    animateParticles();
+
+    // API verification
+    async function verify() {
+      const amount = document.getElementById("amount").value.trim();
+      const hash = document.getElementById("hash").value.trim();
+      const output = document.getElementById("output");
+      if (!amount || !hash) {
+        output.textContent = "⚠️ Please enter both amount and hash.";
+        return;
+      }
+      output.textContent = "⏳ Verifying, please wait...";
+      try {
+        const res = await fetch(`/verify?value=${encodeURIComponent(amount)}&hash=${encodeURIComponent(hash)}`);
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = "❌ Error: " + err.message;
+      }
     }
   </script>
 </body>
