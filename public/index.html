@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Verifier ✨</title>
+
+  <style>
+    :root {
+      --bg-1: #050d1f;
+      --bg-2: #0f1c35;
+      --card: rgba(255,255,255,0.07);
+      --muted: #94a3b8;
+      --accent-a: #7c3aed;
+      --accent-b: #06b6d4;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 14px;
+      --max-width: 860px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      --ui: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: var(--ui);
+      color: #e6eef8;
+      background: radial-gradient(circle at 20% 20%, #0a1630, #030712 80%);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* === Particles === */
+    #particles {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: radial-gradient(circle, #7c3aed, transparent);
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: float 12s linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0.8); opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: var(--max-width);
+      margin: 60px auto;
+      padding: 24px;
+    }
+
+    header { text-align: center; margin-bottom: 20px; }
+    header h1 { font-size: 28px; margin: 0; }
+    header p { color: var(--muted); font-size: 14px; }
+
+    .card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      backdrop-filter: blur(14px);
+      padding: 20px;
+    }
+
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    textarea, input {
+      width:100%;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color:inherit;
+      font-size:15px;
+      outline:none;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    textarea:focus, input:focus {
+      border-color: var(--accent-b);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .actions { margin-top:14px; display:flex; gap:10px; }
+    button {
+      flex:1;
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      font-weight:600;
+      cursor:pointer;
+      transition: all 0.25s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg,var(--accent-a),var(--accent-b));
+      color:#fff;
+      box-shadow:0 6px 20px rgba(124,58,237,0.3);
+    }
+    .btn-primary:hover { filter: brightness(1.15); }
+    .btn-ghost {
+      background: transparent;
+      border:1px solid rgba(255,255,255,0.15);
+      color: var(--muted);
+    }
+    .btn-ghost:hover { color:#fff; border-color:rgba(255,255,255,0.4); }
+
+    .result {
+      margin-top:16px;
+      padding:14px;
+      border-radius:10px;
+      background: rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.05);
+      font-size:15px;
+    }
+
+    .coupon {
+      display:inline-block;
+      padding:8px 10px;
+      border-radius:8px;
+      background: rgba(255,255,255,0.08);
+      font-family: var(--mono);
+      font-weight:600;
+      letter-spacing:0.04em;
+      color:#fff;
+      user-select: all;
+    }
+
+    footer {
+      margin-top:20px;
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+    }
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .wrap {
+      margin: 30px 16px;
+      padding: 16px;
+    }
+
+    header h1 {
+      font-size: 24px;
+    }
+
+    header p {
+      font-size: 13px;
+    }
+
+    .card {
+      padding: 16px;
+    }
+
+    textarea, input {
+      font-size: 14px;
+      padding: 10px 12px;
+    }
+
+    .actions {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    button {
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .result {
+      font-size: 14px;
+      padding: 12px;
+    }
+
+    .coupon {
+      font-size: 0.95rem;
+      padding: 6px 8px;
+    }
+  }
+  </style>
+</head>
+
+<body>
+  <div id="particles"></div>
+
+  <div class="wrap">
+    <header>
+      <h1>Verifier</h1>
+      <p>Paste your Base64 message and amount to verify.</p>
+    </header>
+
+    <div class="card">
+      <label>Base64 encoded message</label>
+      <textarea id="encoded" rows="4" placeholder="paste encoded message here"></textarea>
+
+      <label>Target amount (number)</label>
+      <input id="amount" type="number" value="0" />
+
+      <div class="actions">
+        <button id="checkBtn" class="btn-primary">Verify</button>
+        <button type="reset" class="btn-ghost" onclick="document.getElementById('output').style.display='none'">Clear</button>
+      </div>
+
+      <div id="output" class="result" style="display:none;"></div>
+    </div>
+
+    <footer>✨ Cryptalis Verifier</footer>
+  </div>
+
+  <script src="./script.js"></script>
+
+  <script>
+    // === Floating particles ===
+    const container = document.getElementById('particles');
+    for (let i=0; i<40; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 3 + 2;
+      p.style.width = p.style.height = `${size}px`;
+      p.style.left = `${Math.random()*100}%`;
+      p.style.animationDuration = `${8 + Math.random()*8}s`;
+      p.style.animationDelay = `${Math.random()*12}s`;
+      container.appendChild(p);
+    }
+  </script>
+</body>
+</html>
