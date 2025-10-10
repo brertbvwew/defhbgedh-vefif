@@ -130,10 +130,6 @@ app.get("/verify", (req, res) => {
   }
 });
 
-// Fallback route for frontend (fixes Render + Node 22 path-to-regexp error)
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
 
 // Start server (Render sets PORT automatically)
 const PORT = process.env.PORT || 3000;
