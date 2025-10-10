@@ -11,7 +11,7 @@ const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const SALT = "XyZ123!@#";
 
 // Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join("public")));
 
 // Utility: md5
 function md5(text) {
@@ -132,7 +132,7 @@ app.get("/verify", (req, res) => {
 
 // Default route — serve index.html from public if no other route matches
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join("public", "index.html"));
 });
 
 // start server
