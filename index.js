@@ -11,7 +11,7 @@ const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const SALT = "XyZ123!@#";
 
 // Serve static files from the "public" directory
-app.use(express.static(path.join("public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Utility: md5
 function md5(text) {
@@ -36,7 +36,7 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
     ok: false,
     reason: null,
     amount: targetAmount,
-    //foundSuffix: null,
+    foundSuffix: null,
     timeSeconds: null,
   };
 
@@ -78,7 +78,7 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
     if (recomputedCoinsHash === coinsHash) {
       const end = Date.now();
       result.ok = true;
-      //result.foundSuffix = suffix;
+      result.foundSuffix = suffix;
       result.timeSeconds = (end - start) / 1000;
       return result;
     }
@@ -114,7 +114,7 @@ app.get("/verify", (req, res) => {
         ok: true,
         message: "Verification succeeded",
         amount: verification.amount,
-        //suffix: verification.foundSuffix,
+        suffix: verification.foundSuffix,
         timeSeconds: verification.timeSeconds,
       });
     } else {
@@ -130,15 +130,13 @@ app.get("/verify", (req, res) => {
   }
 });
 
-// Default route — serve index.html from public if no other route matches
-app.get("*", (req, res) => {
-  res.sendFile(path.join("public", "index.html"));
+// Fallback route for frontend (fixes Render + Node 22 path-to-regexp error)
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// start server
-const PORT = 3000;
+// Start server (Render sets PORT automatically)
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ API listening on http://localhost:${PORT}`);
-  //console.log(`📁 Serving static files from /public`);
- // console.log(`💡 Try: GET /verify?value=<amount>&hash=<base64_string>`);
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
