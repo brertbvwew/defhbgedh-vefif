@@ -78,7 +78,7 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
     if (recomputedCoinsHash === coinsHash) {
       const end = Date.now();
       result.ok = true;
-      result.foundSuffix = suffix;
+      //result.foundSuffix = suffix;
       result.timeSeconds = (end - start) / 1000;
       return result;
     }
@@ -114,7 +114,7 @@ app.get("/verify", (req, res) => {
         ok: true,
         message: "Verification succeeded",
         amount: verification.amount,
-        suffix: verification.foundSuffix,
+        //suffix: verification.foundSuffix,
         timeSeconds: verification.timeSeconds,
       });
     } else {
