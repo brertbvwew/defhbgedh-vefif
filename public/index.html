@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Decoder</title>
+  <title>Verification Portal</title>
   <style>
+    /* Reset and Global Styles */
     * {
       box-sizing: border-box;
     }
 
     body {
-      background: radial-gradient(circle at top left, #0a0f1f, #000);
+      /* Darker, deeper blue gradient for a more 'glossy' feel */
+      background: radial-gradient(circle at 10% 20%, #080a1a, #000000 90%);
       color: #e2e8f0;
       font-family: "Poppins", system-ui, sans-serif;
       display: flex;
@@ -22,6 +24,7 @@
       position: relative;
     }
 
+    /* Particle Canvas */
     canvas#particles {
       position: fixed;
       top: 0;
@@ -29,97 +32,121 @@
       width: 100%;
       height: 100%;
       z-index: 0;
+      opacity: 0.9;
     }
 
+    /* Header & Title */
     h1 {
-      color: #38bdf8;
-      margin-bottom: 20px;
+      color: #63e6be;
+      margin-bottom: 25px;
       text-align: center;
-      letter-spacing: 1px;
-      text-shadow: 0 0 10px #38bdf8;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px #63e6be, 0 0 25px rgba(99, 230, 190, 0.4);
+      font-weight: 800;
     }
 
+    /* Main Box (The 'See-Through Glossy' Container) */
     .box {
-      backdrop-filter: blur(20px);
-      background: rgba(30, 41, 59, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 35px;
-      border-radius: 20px;
+      /* INCREASED BLUR and transparency for extreme glass effect */
+      backdrop-filter: blur(50px) saturate(180%);
+      /* Significantly reduced background opacity */
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(15, 23, 42, 0.4));
+      /* Retained glowing border */
+      border: 1px solid rgba(99, 230, 190, 0.3);
+      padding: 40px;
+      border-radius: 25px;
       width: 90%;
       max-width: 500px;
-      box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+      /* Strong box-shadow for definition */
+      box-shadow: 0 4px 60px rgba(0, 0, 0, 0.7), 
+                  0 0 40px rgba(99, 230, 190, 0.35);
       position: relative;
       z-index: 2;
-      transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     .box:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 40px rgba(56, 189, 248, 0.35);
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 8px 80px rgba(0, 0, 0, 0.9), 
+                  0 0 60px rgba(99, 230, 190, 0.6);
     }
 
+    /* Labels */
     label {
       display: block;
-      margin-top: 12px;
-      font-weight: 600;
-      color: #cbd5e1;
+      margin-top: 15px;
+      font-weight: 500;
+      color: #94a3b8;
     }
 
+    /* Inputs: Also made slightly more transparent to maintain consistency */
     input {
       width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border: none;
-      border-radius: 10px;
-      background: rgba(51, 65, 85, 0.8);
-      color: #f8fafc;
+      padding: 14px;
+      margin-top: 8px;
+      border: 1px solid rgba(99, 230, 190, 0.1);
+      border-radius: 12px;
+      /* Reduced opacity on input background */
+      background: rgba(15, 23, 42, 0.4); 
+      color: #ffffff;
       font-size: 1rem;
       outline: none;
-      transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s ease-in-out;
     }
 
     input:focus {
-      background: rgba(56, 189, 248, 0.1);
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      background: rgba(15, 23, 42, 0.6);
+      border-color: #63e6be;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 
+                  0 0 10px rgba(99, 230, 190, 0.5);
     }
-
+    
+    /* Button */
     button {
-      margin-top: 25px;
+      margin-top: 30px;
       width: 100%;
-      padding: 12px;
-      font-size: 1.1rem;
+      padding: 14px;
+      font-size: 1.15rem;
       border: none;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #38bdf8, #3b82f6);
+      border-radius: 12px;
+      background: linear-gradient(90deg, #63e6be, #3b82f6); 
       color: #0f172a;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.2s ease;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 20px rgba(99, 230, 190, 0.5);
     }
 
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+      transform: translateY(-4px);
+      box-shadow: 0 6px 30px rgba(99, 230, 190, 0.8);
+      background: linear-gradient(90deg, #3b82f6, #63e6be);
     }
-
+    
+    /* Output Pre Tag */
     pre {
-      margin-top: 25px;
-      background: rgba(15, 23, 42, 0.8);
-      padding: 15px;
-      border-radius: 10px;
+      margin-top: 30px;
+      background: rgba(8, 11, 25, 0.7); /* Slightly reduced opacity */
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.15);
       overflow-x: auto;
       font-size: 0.9rem;
       white-space: pre-wrap;
       word-wrap: break-word;
       color: #93c5fd;
+      line-height: 1.6;
+      text-shadow: 0 0 5px rgba(147, 197, 253, 0.2); 
     }
 
+    /* Footer */
     .footer {
-      margin-top: 20px;
+      margin-top: 25px;
       text-align: center;
       color: #475569;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
     }
   </style>
 </head>
@@ -127,18 +154,25 @@
   <canvas id="particles"></canvas>
 
   <div class="box">
-    <h1>✨ Decoder</h1>
-    <label>Amount:</label>
-    <input id="amount" type="number" placeholder="Enter amount">
-    <label>Base64 Hash:</label>
-    <input id="hash" type="text" placeholder="Enter Base64 hash">
-    <button onclick="verify()">Verify</button>
-    <pre id="output">Result will appear here...</pre>
-    <div class="footer">Made with 💎</div>
+    <h1><span style="font-size: 1.5em; vertical-align: middle;">🔑</span> Verification Portal</h1>
+    
+    <label for="amount">Amount:</label>
+    <input id="amount" type="number" placeholder="Enter amount (e.g., 100)">
+    
+    <label for="hash">Base64 Hash:</label>
+    <input id="hash" type="text" placeholder="Enter Base64 hash string">
+    
+    <label for="phone">Phone Number:</label>
+    <input id="phone" type="tel" placeholder="Enter phone number (e.g., 5551234567)">
+    
+    <button onclick="verify()">VERIFY & SUBMIT</button>
+    
+    <pre id="output">Status: Ready to receive data...</pre>
+    <div class="footer">Secure Decode Interface v2.1</div>
   </div>
 
   <script>
-    // Particle background
+    // Particle background: Increased speed and line opacity for a 'better' effect
     const canvas = document.getElementById("particles");
     const ctx = canvas.getContext("2d");
     let particles = [];
@@ -155,8 +189,9 @@
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.size = Math.random() * 2 + 1;
-        this.speedX = (Math.random() - 0.5) * 0.7;
-        this.speedY = (Math.random() - 0.5) * 0.7;
+        // Increased speed for a more active particle field
+        this.speedX = (Math.random() - 0.5) * 1.5; 
+        this.speedY = (Math.random() - 0.5) * 1.5;
       }
       update() {
         this.x += this.speedX;
@@ -165,14 +200,15 @@
         if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
       }
       draw() {
-        ctx.fillStyle = "rgba(56,189,248,0.8)";
+        // Changed color to match the new vibrant cyan/green glow
+        ctx.fillStyle = "rgba(99, 230, 190, 0.9)"; 
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    function initParticles(count = 80) {
+    function initParticles(count = 100) { // Increased count from 80 to 100
       particles = [];
       for (let i = 0; i < count; i++) {
         particles.push(new Particle());
@@ -180,7 +216,10 @@
     }
 
     function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Use a low opacity fill to create a subtle trail effect
+      ctx.fillStyle = 'rgba(8, 10, 26, 0.2)'; 
+      ctx.fillRect(0, 0, canvas.width, canvas.height); 
+      
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.update();
@@ -190,9 +229,10 @@
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 100) {
-            ctx.strokeStyle = `rgba(56,189,248,${1 - dist / 100})`;
-            ctx.lineWidth = 0.2;
+          if (dist < 120) { // Increased connection distance
+            // Changed line color to match the glow and increased opacity
+            ctx.strokeStyle = `rgba(99, 230, 190, ${1 - dist / 120})`; 
+            ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
@@ -210,18 +250,53 @@
     async function verify() {
       const amount = document.getElementById("amount").value.trim();
       const hash = document.getElementById("hash").value.trim();
+      const phone = document.getElementById("phone").value.trim();
       const output = document.getElementById("output");
-      if (!amount || !hash) {
-        output.textContent = "⚠️ Please enter both amount and hash.";
+
+      if (!amount || !hash || !phone) {
+        output.textContent = "⚠️ Validation Error: Please fill in all fields.";
         return;
       }
-      output.textContent = "⏳ Verifying, please wait...";
+
+      output.textContent = "⏳ Transmitting data... Awaiting server verification...";
+
       try {
-        const res = await fetch(`/verify?value=${encodeURIComponent(amount)}&hash=${encodeURIComponent(hash)}`);
-        const data = await res.json();
-        output.textContent = JSON.stringify(data, null, 2);
+        const response = await fetch('/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            value: amount,
+            hash: hash,
+            phoneNumber: phone,
+          }),
+        });
+
+        const data = await response.json();
+        
+        // Custom formatting for a better output
+        let displayText = `--- VERIFICATION RESULT ---\n`;
+        if (data.ok) {
+            displayText += `Status: ✅ SUCCESS\n`;
+            displayText += `Amount: ${data.amount}\n`;
+            displayText += `Suffix Found: ${data.suffix}\n`;
+            displayText += `Process Time: ${data.timeSeconds} seconds\n`;
+            displayText += `Message: ${data.message}`;
+            output.style.color = '#63e6be'; // Green glow for success
+        } else {
+            displayText += `Status: ❌ FAILED\n`;
+            displayText += `Reason: ${data.reason || data.error}\n`;
+            if (data.timeSeconds) displayText += `Process Time: ${data.timeSeconds} seconds\n`;
+            displayText += `Message: ${data.message || 'Verification attempt recorded.'}`;
+            output.style.color = '#f87171'; // Red glow for failure
+        }
+        
+        output.textContent = displayText;
+
       } catch (err) {
-        output.textContent = "❌ Error: " + err.message;
+        output.textContent = "❌ Network Error: Could not connect to server.\nDetails: " + err.message;
+        output.style.color = '#f87171';
       }
     }
   </script>
