@@ -194,7 +194,9 @@
     <h1>🔑 LINK NEBULA</h1>
 
     <label for="amount">Amount:</label>
-    <input id="amount" type="number" placeholder="Enter amount (e.g., 500)" min="500" max="500" oninput="validateAmount(this)">
+    <input id="amount" type="number" value="500" readonly>
+
+
     <label for="hash">Base64 Hash:</label>
     <input id="hash" type="text" placeholder="Enter Base64 hash string">
     <label for="phone">Phone Number:</label>
@@ -236,11 +238,6 @@
   </div>
 
   <script>
-    function validateAmount(input) {
-      if (input.value !== "500") {
-        input.value = ""; // Clear invalid input
-      }
-    }
     // === Particle Background ===
     const canvas = document.getElementById("particles");
     const ctx = canvas.getContext("2d");
