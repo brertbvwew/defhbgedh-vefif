@@ -3,131 +3,140 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verification Portal</title>
+  <title>NEBULA || LINK</title>
   <style>
-    /* Reset and Global Styles */
+    /* === Reset & Base === */
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      /* Darker, deeper blue gradient for a more 'glossy' feel */
-      background: radial-gradient(circle at 10% 20%, #080a1a, #000000 90%);
+      background: radial-gradient(circle at 20% 20%, #0a0f2a, #000000 90%);
       color: #e2e8f0;
       font-family: "Poppins", system-ui, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      margin: 0;
       overflow: hidden;
       position: relative;
     }
 
-    /* Particle Canvas */
+    /* === Particle Canvas === */
     canvas#particles {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       z-index: 0;
-      opacity: 0.9;
+      opacity: 0.8;
     }
 
-    /* Header & Title */
+    /* === Title === */
     h1 {
       color: #63e6be;
-      margin-bottom: 25px;
       text-align: center;
+      margin-bottom: 30px;
       letter-spacing: 2px;
-      text-shadow: 0 0 15px #63e6be, 0 0 25px rgba(99, 230, 190, 0.4);
       font-weight: 800;
+      text-shadow:
+        0 0 10px #63e6be,
+        0 0 30px rgba(99,230,190,0.4),
+        0 0 50px rgba(99,230,190,0.2);
     }
 
-    /* Main Box (The 'See-Through Glossy' Container) */
+    /* === Main Box (Glass + Glow) === */
     .box {
-      /* INCREASED BLUR and transparency for extreme glass effect */
-      backdrop-filter: blur(50px) saturate(180%);
-      /* Significantly reduced background opacity */
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(15, 23, 42, 0.4));
-      /* Retained glowing border */
-      border: 1px solid rgba(99, 230, 190, 0.3);
-      padding: 40px;
+      backdrop-filter: blur(45px) saturate(180%);
+      background: linear-gradient(
+        135deg,
+        rgba(25, 38, 59, 0.35),
+        rgba(10, 15, 25, 0.45)
+      );
+      border: 1px solid rgba(99, 230, 190, 0.25);
       border-radius: 25px;
+      padding: 45px;
       width: 90%;
       max-width: 500px;
-      /* Strong box-shadow for definition */
-      box-shadow: 0 4px 60px rgba(0, 0, 0, 0.7), 
-                  0 0 40px rgba(99, 230, 190, 0.35);
       position: relative;
       z-index: 2;
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow:
+        0 0 40px rgba(0,0,0,0.8),
+        0 0 60px rgba(99,230,190,0.25);
+      transition: all 0.4s ease;
     }
 
     .box:hover {
       transform: translateY(-5px) scale(1.01);
-      box-shadow: 0 8px 80px rgba(0, 0, 0, 0.9), 
-                  0 0 60px rgba(99, 230, 190, 0.6);
+      box-shadow:
+        0 0 60px rgba(99,230,190,0.4),
+        0 0 100px rgba(59,130,246,0.25);
     }
 
-    /* Labels */
+    /* === Labels === */
     label {
       display: block;
-      margin-top: 15px;
-      font-weight: 500;
+      margin-top: 18px;
       color: #94a3b8;
+      font-weight: 500;
+      letter-spacing: 0.4px;
     }
 
-    /* Inputs: Also made slightly more transparent to maintain consistency */
+    /* === Inputs === */
     input {
       width: 100%;
       padding: 14px;
       margin-top: 8px;
       border: 1px solid rgba(99, 230, 190, 0.1);
       border-radius: 12px;
-      /* Reduced opacity on input background */
-      background: rgba(15, 23, 42, 0.4); 
+      background: rgba(15, 23, 42, 0.45);
       color: #ffffff;
       font-size: 1rem;
       outline: none;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
-      transition: all 0.3s ease-in-out;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
     }
 
     input:focus {
-      background: rgba(15, 23, 42, 0.6);
       border-color: #63e6be;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 
-                  0 0 10px rgba(99, 230, 190, 0.5);
+      background: rgba(15, 23, 42, 0.6);
+      box-shadow:
+        0 0 12px rgba(99,230,190,0.6),
+        0 0 30px rgba(99,230,190,0.25),
+        inset 0 1px 5px rgba(0,0,0,0.8);
     }
-    
-    /* Button */
+
+    /* === Button === */
     button {
-      margin-top: 30px;
+      margin-top: 35px;
       width: 100%;
-      padding: 14px;
-      font-size: 1.15rem;
+      padding: 15px;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 12px;
-      background: linear-gradient(90deg, #63e6be, #3b82f6); 
+      border-radius: 14px;
+      background: linear-gradient(90deg, #63e6be, #3b82f6, #7dd3fc);
+      background-size: 200% 100%;
       color: #0f172a;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 20px rgba(99, 230, 190, 0.5);
+      box-shadow:
+        0 4px 25px rgba(99,230,190,0.45),
+        inset 0 0 10px rgba(99,230,190,0.3);
+      transition: all 0.4s ease;
     }
 
     button:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 30px rgba(99, 230, 190, 0.8);
-      background: linear-gradient(90deg, #3b82f6, #63e6be);
+      background-position: right center;
+      transform: translateY(-3px);
+      box-shadow:
+        0 0 40px rgba(99,230,190,0.65),
+        0 0 60px rgba(59,130,246,0.45);
     }
-    
-    /* Output Pre Tag */
+
+    /* === Output === */
     pre {
       margin-top: 30px;
-      background: rgba(8, 11, 25, 0.7); /* Slightly reduced opacity */
+      background: rgba(8, 11, 25, 0.65);
       padding: 20px;
       border-radius: 12px;
       border: 1px solid rgba(56, 189, 248, 0.15);
@@ -137,16 +146,18 @@
       word-wrap: break-word;
       color: #93c5fd;
       line-height: 1.6;
-      text-shadow: 0 0 5px rgba(147, 197, 253, 0.2); 
+      text-shadow: 0 0 5px rgba(147,197,253,0.3);
+      box-shadow: inset 0 0 10px rgba(56,189,248,0.08);
     }
 
-    /* Footer */
+    /* === Footer === */
     .footer {
       margin-top: 25px;
       text-align: center;
       color: #475569;
       font-size: 0.85rem;
       letter-spacing: 0.5px;
+      opacity: 0.75;
     }
   </style>
 </head>
@@ -154,25 +165,25 @@
   <canvas id="particles"></canvas>
 
   <div class="box">
-    <h1><span style="font-size: 1.5em; vertical-align: middle;">🔑</span> Verification Portal</h1>
+    <h1>🔑 LINK NEBULA</h1>
     
     <label for="amount">Amount:</label>
-    <input id="amount" type="number" placeholder="Enter amount (e.g., 100)">
-    
+    <input id="amount" type="number" placeholder="Enter amount (e.g., 500)">
+
     <label for="hash">Base64 Hash:</label>
     <input id="hash" type="text" placeholder="Enter Base64 hash string">
-    
+
     <label for="phone">Phone Number:</label>
-    <input id="phone" type="tel" placeholder="Enter phone number (e.g., 5551234567)">
-    
+    <input id="phone" type="tel" placeholder="Enter phone number (e.g., 2738437434)">
+
     <button onclick="verify()">VERIFY & SUBMIT</button>
-    
+
     <pre id="output">Status: Ready to receive data...</pre>
-    <div class="footer">Secure Decode Interface v2.1</div>
+    <div class="footer">Secure Decode Interface v3.0</div>
   </div>
 
   <script>
-    // Particle background: Increased speed and line opacity for a 'better' effect
+    // === Particle Background ===
     const canvas = document.getElementById("particles");
     const ctx = canvas.getContext("2d");
     let particles = [];
@@ -189,9 +200,8 @@
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.size = Math.random() * 2 + 1;
-        // Increased speed for a more active particle field
-        this.speedX = (Math.random() - 0.5) * 1.5; 
-        this.speedY = (Math.random() - 0.5) * 1.5;
+        this.speedX = (Math.random() - 0.5) * 1.3;
+        this.speedY = (Math.random() - 0.5) * 1.3;
       }
       update() {
         this.x += this.speedX;
@@ -200,15 +210,14 @@
         if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
       }
       draw() {
-        // Changed color to match the new vibrant cyan/green glow
-        ctx.fillStyle = "rgba(99, 230, 190, 0.9)"; 
+        ctx.fillStyle = "rgba(99, 230, 190, 0.9)";
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    function initParticles(count = 100) { // Increased count from 80 to 100
+    function initParticles(count = 110) {
       particles = [];
       for (let i = 0; i < count; i++) {
         particles.push(new Particle());
@@ -216,22 +225,22 @@
     }
 
     function animateParticles() {
-      // Use a low opacity fill to create a subtle trail effect
-      ctx.fillStyle = 'rgba(8, 10, 26, 0.2)'; 
-      ctx.fillRect(0, 0, canvas.width, canvas.height); 
-      
+      ctx.fillStyle = "rgba(8, 10, 26, 0.25)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.update();
         p.draw();
-        for (let j = i; j < particles.length; j++) {
+
+        for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) { // Increased connection distance
-            // Changed line color to match the glow and increased opacity
-            ctx.strokeStyle = `rgba(99, 230, 190, ${1 - dist / 120})`; 
+          if (dist < 120) {
+            const alpha = (1 - dist / 120) * 0.9;
+            ctx.strokeStyle = `rgba(99, 230, 190, ${alpha})`;
             ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
@@ -246,7 +255,7 @@
     initParticles();
     animateParticles();
 
-    // API verification
+    // === Verify Function ===
     async function verify() {
       const amount = document.getElementById("amount").value.trim();
       const hash = document.getElementById("hash").value.trim();
@@ -255,45 +264,38 @@
 
       if (!amount || !hash || !phone) {
         output.textContent = "⚠️ Validation Error: Please fill in all fields.";
+        output.style.color = "#f87171";
         return;
       }
 
       output.textContent = "⏳ Transmitting data... Awaiting server verification...";
+      output.style.color = "#e2e8f0";
 
       try {
         const response = await fetch('/verify', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            value: amount,
-            hash: hash,
-            phoneNumber: phone,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: amount, hash: hash, phoneNumber: phone }),
         });
 
         const data = await response.json();
-        
-        // Custom formatting for a better output
+
         let displayText = `--- VERIFICATION RESULT ---\n`;
         if (data.ok) {
-            displayText += `Status: ✅ SUCCESS\n`;
-            displayText += `Amount: ${data.amount}\n`;
-            //displayText += `Suffix Found: ${data.suffix}\n`;
-            displayText += `Process Time: ${data.timeSeconds} seconds\n`;
-            displayText += `Message: ${data.message}`;
-            output.style.color = '#63e6be'; // Green glow for success
+          displayText += `Status: ✅ SUCCESS\n`;
+          displayText += `Amount: ${data.amount}\n`;
+          displayText += `Process Time: ${data.timeSeconds} seconds\n`;
+          displayText += `Message: ${data.message}`;
+          output.style.color = '#63e6be';
         } else {
-            displayText += `Status: ❌ FAILED\n`;
-            displayText += `Reason: ${data.reason || data.error}\n`;
-            if (data.timeSeconds) displayText += `Process Time: ${data.timeSeconds} seconds\n`;
-            displayText += `Message: ${data.message || 'Verification attempt recorded.'}`;
-            output.style.color = '#f87171'; // Red glow for failure
+          displayText += `Status: ❌ FAILED\n`;
+          displayText += `Reason: ${data.reason || data.error}\n`;
+          if (data.timeSeconds) displayText += `Process Time: ${data.timeSeconds} seconds\n`;
+          displayText += `Message: ${data.message || 'Verification attempt recorded.'}`;
+          output.style.color = '#f87171';
         }
-        
-        output.textContent = displayText;
 
+        output.textContent = displayText;
       } catch (err) {
         output.textContent = "❌ Network Error: Could not connect to server.\nDetails: " + err.message;
         output.style.color = '#f87171';
