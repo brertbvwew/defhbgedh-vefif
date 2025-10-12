@@ -2,6 +2,7 @@
 const express = require("express");
 const crypto = require("crypto");
 const path = require("path");
+const fs = require("fs").promises; // 👈 Added for file system operations
 
 const app = express();
 
@@ -9,9 +10,11 @@ const app = express();
 const SECRET_TEXT = "ONLY_JAMES_KNOWS_THIS_PART";
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const SALT = "XyZ123!@#";
+const DB_PATH = path.join(__dirname, "number.json"); // 👈 Path for our JSON file
 
-// Serve static files from the "public" directory
+// Middleware
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json()); // 👈 To parse incoming JSON request bodies
 
 // Utility: md5
 function md5(text) {
@@ -78,7 +81,7 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
     if (recomputedCoinsHash === coinsHash) {
       const end = Date.now();
       result.ok = true;
-      //result.foundSuffix = suffix;
+      result.foundSuffix = suffix;
       result.timeSeconds = (end - start) / 1000;
       return result;
     }
@@ -90,15 +93,36 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
   return result;
 }
 
-// Endpoint: GET /verify?value=<amount>&hash=<base64>
-app.get("/verify", (req, res) => {
-  const valueParam = req.query.value;
-  const hashParam = req.query.hash;
+// 👈 New function to save data to number.json
+async function saveSubmission(data) {
+  let submissions = [];
+  try {
+    // Try to read existing file
+    const fileContent = await fs.readFile(DB_PATH, "utf8");
+    submissions = JSON.parse(fileContent);
+  } catch (error) {
+    // If file doesn't exist or is invalid JSON, start with an empty array
+    if (error.code !== 'ENOENT') {
+      console.error("Error reading or parsing number.json:", error);
+    }
+  }
 
-  if (!valueParam || !hashParam) {
+  // Add the new submission
+  submissions.push(data);
+
+  // Write the updated array back to the file
+  await fs.writeFile(DB_PATH, JSON.stringify(submissions, null, 2), "utf8");
+}
+
+
+// 👈 Updated Endpoint: POST /verify
+app.post("/verify", async (req, res) => {
+  const { value: valueParam, hash: hashParam, phoneNumber } = req.body;
+
+  if (!valueParam || !hashParam || !phoneNumber) {
     return res.status(400).json({
       ok: false,
-      error: "Missing query parameters. Use ?value=<amount>&hash=<base64_string>",
+      error: "Missing value, hash, or phoneNumber in the request body.",
     });
   }
 
@@ -109,24 +133,71 @@ app.get("/verify", (req, res) => {
 
   try {
     const verification = verifyAndroidStyleBase64(hashParam, amount);
+
+    // 👇 Save the attempt to our JSON file
+    await saveSubmission({
+      phoneNumber,
+      amount: verification.amount,
+      hash: hashParam,
+      verified: verification.ok, // This will be true or false
+      reason: verification.reason,
+      timestamp: new Date().toISOString(),
+    });
+
     if (verification.ok) {
       return res.json({
         ok: true,
-        message: "Verification succeeded",
+        message: "Verification succeeded and data was saved.",
         amount: verification.amount,
-        //suffix: verification.foundSuffix,
+        suffix: verification.foundSuffix,
         timeSeconds: verification.timeSeconds,
       });
     } else {
       return res.status(400).json({
         ok: false,
-        message: "Verification failed",
+        message: "Verification failed but the attempt was saved.",
         reason: verification.reason,
         timeSeconds: verification.timeSeconds,
       });
     }
   } catch (err) {
     return res.status(500).json({ ok: false, error: "Internal error", details: err.message });
+  }
+});
+
+// ----------------------------------------------------
+// 🌟 NEW ENDPOINT: GET /submissions
+// ----------------------------------------------------
+app.get("/submissions", async (req, res) => {
+  try {
+    // 1. Read the JSON file content
+    const fileContent = await fs.readFile(DB_PATH, "utf8");
+    // 2. Parse the content into a JavaScript object (array of submissions)
+    const submissions = JSON.parse(fileContent);
+
+    // 3. Send the submissions array as the response
+    return res.json({
+      ok: true,
+      count: submissions.length,
+      data: submissions,
+    });
+  } catch (error) {
+    // Handle the case where the file doesn't exist (most common on first run)
+    if (error.code === 'ENOENT') {
+      return res.json({
+        ok: true,
+        count: 0,
+        data: [],
+        message: "The submission database file does not exist yet.",
+      });
+    }
+    // Handle other errors (e.g., corrupt JSON)
+    console.error("Error reading submissions:", error);
+    return res.status(500).json({
+      ok: false,
+      error: "Could not read submissions database.",
+      details: error.message,
+    });
   }
 });
 
