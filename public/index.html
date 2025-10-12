@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NEBULA || LINK</title>
   <style>
-    /* === Reset & Base === */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
     }
 
     body {
@@ -19,12 +23,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
+      flex-direction: column;
     }
 
-    /* === Particle Canvas === */
     canvas#particles {
       position: fixed;
       inset: 0;
@@ -32,132 +33,157 @@
       opacity: 0.8;
     }
 
-    /* === Title === */
     h1 {
       color: #63e6be;
       text-align: center;
       margin-bottom: 30px;
       letter-spacing: 2px;
       font-weight: 800;
-      text-shadow:
-        0 0 10px #63e6be,
-        0 0 30px rgba(99,230,190,0.4),
-        0 0 50px rgba(99,230,190,0.2);
+      text-shadow: 0 0 10px #63e6be, 0 0 30px rgba(99, 230, 190, 0.4);
     }
 
-    /* === Main Box (Glass + Glow) === */
     .box {
       backdrop-filter: blur(45px) saturate(180%);
-      background: linear-gradient(
-        135deg,
-        rgba(25, 38, 59, 0.35),
-        rgba(10, 15, 25, 0.45)
-      );
-      border: 1px solid rgba(99, 230, 190, 0.25);
+      background: linear-gradient(135deg, rgba(25,38,59,0.35), rgba(10,15,25,0.45));
+      border: 1px solid rgba(99,230,190,0.25);
       border-radius: 25px;
       padding: 45px;
       width: 90%;
       max-width: 500px;
-      position: relative;
+      height: 85vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
       z-index: 2;
-      box-shadow:
-        0 0 40px rgba(0,0,0,0.8),
-        0 0 60px rgba(99,230,190,0.25);
-      transition: all 0.4s ease;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 60px rgba(99,230,190,0.25);
     }
 
-    .box:hover {
-      transform: translateY(-5px) scale(1.01);
-      box-shadow:
-        0 0 60px rgba(99,230,190,0.4),
-        0 0 100px rgba(59,130,246,0.25);
+    .box::-webkit-scrollbar {
+      display: none;
     }
 
-    /* === Labels === */
     label {
       display: block;
       margin-top: 18px;
       color: #94a3b8;
       font-weight: 500;
-      letter-spacing: 0.4px;
     }
 
-    /* === Inputs === */
     input {
       width: 100%;
       padding: 14px;
       margin-top: 8px;
-      border: 1px solid rgba(99, 230, 190, 0.1);
       border-radius: 12px;
-      background: rgba(15, 23, 42, 0.45);
-      color: #ffffff;
+      border: 1px solid rgba(99,230,190,0.1);
+      background: rgba(15,23,42,0.45);
+      color: #fff;
       font-size: 1rem;
       outline: none;
-      transition: all 0.3s ease;
-      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+      transition: 0.3s;
     }
 
     input:focus {
       border-color: #63e6be;
-      background: rgba(15, 23, 42, 0.6);
-      box-shadow:
-        0 0 12px rgba(99,230,190,0.6),
-        0 0 30px rgba(99,230,190,0.25),
-        inset 0 1px 5px rgba(0,0,0,0.8);
+      background: rgba(15,23,42,0.6);
+      box-shadow: 0 0 12px rgba(99,230,190,0.6);
     }
 
-    /* === Button === */
     button {
-      margin-top: 35px;
+      margin-top: 30px;
       width: 100%;
       padding: 15px;
       font-size: 1.1rem;
       border: none;
       border-radius: 14px;
-      background: linear-gradient(90deg, #63e6be, #3b82f6, #7dd3fc);
-      background-size: 200% 100%;
-      color: #0f172a;
       font-weight: 700;
       cursor: pointer;
-      box-shadow:
-        0 4px 25px rgba(99,230,190,0.45),
-        inset 0 0 10px rgba(99,230,190,0.3);
-      transition: all 0.4s ease;
+      color: #0f172a;
+      background: linear-gradient(90deg, #63e6be, #3b82f6, #7dd3fc);
+      background-size: 200% 100%;
+      box-shadow: 0 4px 25px rgba(99,230,190,0.45);
+      transition: 0.3s;
     }
 
     button:hover {
       background-position: right center;
       transform: translateY(-3px);
-      box-shadow:
-        0 0 40px rgba(99,230,190,0.65),
-        0 0 60px rgba(59,130,246,0.45);
+      box-shadow: 0 0 40px rgba(99,230,190,0.65);
     }
 
-    /* === Output === */
+    /* Countdown styling */
+    #countdown {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #93c5fd;
+      text-shadow: 0 0 15px rgba(147,197,253,0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #63e6be, 0 0 10px #3b82f6; }
+      to { text-shadow: 0 0 15px #7dd3fc, 0 0 30px #63e6be; }
+    }
+
     pre {
       margin-top: 30px;
-      background: rgba(8, 11, 25, 0.65);
+      background: rgba(8,11,25,0.65);
       padding: 20px;
       border-radius: 12px;
-      border: 1px solid rgba(56, 189, 248, 0.15);
-      overflow-x: auto;
+      border: 1px solid rgba(56,189,248,0.15);
       font-size: 0.9rem;
-      white-space: pre-wrap;
-      word-wrap: break-word;
       color: #93c5fd;
       line-height: 1.6;
-      text-shadow: 0 0 5px rgba(147,197,253,0.3);
-      box-shadow: inset 0 0 10px rgba(56,189,248,0.08);
     }
 
-    /* === Footer === */
-    .footer {
+    .info-section {
       margin-top: 25px;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(15,23,42,0.45);
+      border: 1px solid rgba(99,230,190,0.2);
+    }
+
+    .info-section h2 {
+      color: #63e6be;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .info-section p, .info-section ul {
+      color: #a5b4fc;
+      font-size: 0.9rem;
+    }
+
+    .info-section ul {
+      padding-left: 20px;
+      list-style: disc;
+    }
+
+    .download-btn {
+      display: block;
+      margin: 20px auto 0;
+      text-align: center;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      color: #0f172a;
+      background: linear-gradient(90deg, #63e6be, #3b82f6);
+      width: 80%;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .download-btn:hover {
+      box-shadow: 0 0 25px rgba(99,230,190,0.4);
+    }
+
+    .footer {
+      margin-top: 20px;
       text-align: center;
       color: #475569;
       font-size: 0.85rem;
-      letter-spacing: 0.5px;
-      opacity: 0.75;
     }
   </style>
 </head>
@@ -166,19 +192,46 @@
 
   <div class="box">
     <h1>🔑 LINK NEBULA</h1>
-    
+
     <label for="amount">Amount:</label>
     <input id="amount" type="number" placeholder="Enter amount (e.g., 500)">
-
     <label for="hash">Base64 Hash:</label>
     <input id="hash" type="text" placeholder="Enter Base64 hash string">
-
     <label for="phone">Phone Number:</label>
     <input id="phone" type="tel" placeholder="Enter phone number (e.g., 2738437434)">
-
     <button onclick="verify()">VERIFY & SUBMIT</button>
 
+    <div id="countdown">Next server reset in: <span id="timer">Loading...</span></div>
+
     <pre id="output">Status: Ready to receive data...</pre>
+
+    <div class="info-section">
+      <h2>⚙️ How It Works</h2>
+      <p>
+        1️⃣ Enter your <strong>transaction amount</strong>, <strong>Base64 hash</strong>, and <strong>phone number</strong>.<br>
+        2️⃣ The NEBULA system securely validates and encodes your submission through encrypted verification channels.<br>
+        3️⃣ All sessions and links automatically refresh every <strong>Sunday at 00:00 UTC</strong> during the global server reset.
+      </p>
+    </div>
+
+    <div class="info-section">
+      <h2>📜 Rules</h2>
+      <ul>
+        <li>⚠️ Linking on a reset day may result in data invalidation schedule responsibly.</li>
+        <li>✔️ Verify that all submitted details are correct prior to submission.</li>
+        <li>🕛 The system performs a global reset every Sunday at 00:00 UTC.</li>
+        <li>💠 Execution of bot operations requires a minimum balance of <strong>500 NEBULA Coins</strong>.</li>
+        <li>🌀 Please remain patient during live verification or reset cycles.</li>
+      </ul>
+    </div>
+
+
+
+    <div class="info-section">
+      <h2>📲 Install Android App</h2>
+      <a class="download-btn" href="https://play.google.com/store/apps/details?id=com.coderx.creditsocial">⬇️ Download Android App</a>
+    </div>
+
     <div class="footer">Secure Decode Interface v3.0</div>
   </div>
 
@@ -217,43 +270,66 @@
       }
     }
 
-    function initParticles(count = 110) {
+    function initParticles(n = 120) {
       particles = [];
-      for (let i = 0; i < count; i++) {
-        particles.push(new Particle());
-      }
+      for (let i = 0; i < n; i++) particles.push(new Particle());
     }
 
     function animateParticles() {
       ctx.fillStyle = "rgba(8, 10, 26, 0.25)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.update();
-        p.draw();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            const alpha = (1 - dist / 120) * 0.9;
-            ctx.strokeStyle = `rgba(99, 230, 190, ${alpha})`;
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        }
-      }
+      particles.forEach(p => { p.update(); p.draw(); });
       requestAnimationFrame(animateParticles);
     }
 
     initParticles();
     animateParticles();
+
+    // === Live Weekly Countdown (Every Sunday 00:00 UTC) ===
+    function startCountdown() {
+      const timer = document.getElementById("timer");
+
+      function updateCountdown() {
+        const now = new Date();
+        const utcNow = new Date(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate(),
+          now.getUTCHours(),
+          now.getUTCMinutes(),
+          now.getUTCSeconds()
+        );
+
+        // Calculate next Sunday 00:00 UTC
+        const day = now.getUTCDay(); // 0 = Sunday
+        const daysUntilNextSunday = day === 0 ? 7 : 7 - day;
+        const nextSunday = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate() + daysUntilNextSunday,
+          0, 0, 0
+        ));
+
+        const diff = nextSunday - now;
+
+        if (diff <= 0) {
+          timer.textContent = "🔄 Reset in progress...";
+          return;
+        }
+
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        timer.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
+    startCountdown();
 
     // === Verify Function ===
     async function verify() {
@@ -272,33 +348,23 @@
       output.style.color = "#e2e8f0";
 
       try {
-        const response = await fetch('/verify', {
+        const res = await fetch('/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: amount, hash: hash, phoneNumber: phone }),
+          body: JSON.stringify({ value: amount, hash, phoneNumber: phone }),
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        let displayText = `--- VERIFICATION RESULT ---\n`;
         if (data.ok) {
-          displayText += `Status: ✅ SUCCESS\n`;
-          displayText += `Amount: ${data.amount}\n`;
-          displayText += `Process Time: ${data.timeSeconds} seconds\n`;
-          displayText += `Message: ${data.message}`;
-          output.style.color = '#63e6be';
+          output.textContent = `✅ SUCCESS\nAmount: ${data.amount}\nTime: ${data.timeSeconds}s\nMessage: ${data.message}`;
+          output.style.color = "#63e6be";
         } else {
-          displayText += `Status: ❌ FAILED\n`;
-          displayText += `Reason: ${data.reason || data.error}\n`;
-          if (data.timeSeconds) displayText += `Process Time: ${data.timeSeconds} seconds\n`;
-          displayText += `Message: ${data.message || 'Verification attempt recorded.'}`;
-          output.style.color = '#f87171';
+          output.textContent = `❌ FAILED\nReason: ${data.reason || data.error}`;
+          output.style.color = "#f87171";
         }
-
-        output.textContent = displayText;
       } catch (err) {
-        output.textContent = "❌ Network Error: Could not connect to server.\nDetails: " + err.message;
-        output.style.color = '#f87171';
+        output.textContent = "❌ Network Error: " + err.message;
+        output.style.color = "#f87171";
       }
     }
   </script>
