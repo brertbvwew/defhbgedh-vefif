@@ -202,7 +202,7 @@
     </div>
 
     <label for="phone">Phone Number:</label>
-    <input id="phone" type="tel" placeholder="Enter phone number in international format (e.g., 27884xxxxxx)">
+    <input id="phone" type="tel" placeholder="WhatsApp Number (e.g., 27884374xxx)">
     <button onclick="verify()">VERIFY & SUBMIT</button>
 
     <div id="countdown">Next server reset in: <span id="timer">Loading...</span></div>
@@ -239,162 +239,191 @@
     <div class="footer">Secure Decode Interface v3.0</div>
   </div>
 
-  <script>
-    // === CONFIG FLAG ===
-    const IS_FREE = true; // ✅ true = Free mode, false = Paid mode
+<script>
+  // === CONFIG FLAG ===
+  const IS_FREE = true; // ✅ true = Free mode, false = Paid mode
+  const RESTART_HOUR_SAST = 20; // 8 PM SAST (UTC+2)
+  const RESTART_DURATION_MINUTES = 60;
 
-    // === Particle Background ===
-    const canvas = document.getElementById("particles");
-    const ctx = canvas.getContext("2d");
-    let particles = [];
+  // === Particle Background ===
+  const canvas = document.getElementById("particles");
+  const ctx = canvas.getContext("2d");
+  let particles = [];
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 2 + 1;
+      this.speedX = (Math.random() - 0.5) * 1.3;
+      this.speedY = (Math.random() - 0.5) * 1.3;
     }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+    draw() {
+      ctx.fillStyle = "rgba(99, 230, 190, 0.9)";
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
-    class Particle {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 1;
-        this.speedX = (Math.random() - 0.5) * 1.3;
-        this.speedY = (Math.random() - 0.5) * 1.3;
+  function initParticles(n = 120) {
+    particles = [];
+    for (let i = 0; i < n; i++) particles.push(new Particle());
+  }
+
+  function animateParticles() {
+    ctx.fillStyle = "rgba(8, 10, 26, 0.25)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+  }
+
+  initParticles();
+  animateParticles();
+
+  // === Utility: Convert current time to UTC+2 ===
+  function getSASTDate() {
+    const now = new Date();
+    return new Date(now.getTime() + 2 * 60 * 60 * 1000); // Add 2 hours
+  }
+
+  // === Countdown to next reset (for normal display) ===
+  function startCountdown() {
+    const timer = document.getElementById("timer");
+    function updateCountdown() {
+      const now = getSASTDate();
+      const day = now.getDay();
+      const daysUntilNextSunday = day === 0 ? 7 : 7 - day;
+
+      const nextSunday8pm = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + daysUntilNextSunday,
+        RESTART_HOUR_SAST,
+        0,
+        0
+      );
+
+      const diff = nextSunday8pm - now;
+      if (diff <= 0) {
+        timer.textContent = "🔄 Restart in progress...";
+        return;
       }
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-      }
-      draw() {
-        ctx.fillStyle = "rgba(99, 230, 190, 0.9)";
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      timer.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    function initParticles(n = 120) {
-      particles = [];
-      for (let i = 0; i < n; i++) particles.push(new Particle());
-    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
 
-    function animateParticles() {
-      ctx.fillStyle = "rgba(8, 10, 26, 0.25)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => { p.update(); p.draw(); });
-      requestAnimationFrame(animateParticles);
-    }
+  startCountdown();
 
-    initParticles();
-    animateParticles();
+  // === Handle Free/Paid visibility ===
+  const paidFields = document.getElementById("paidFields");
+  if (IS_FREE) paidFields.style.display = "none";
 
-    // === Weekly Countdown ===
-    function startCountdown() {
-      const timer = document.getElementById("timer");
-      function updateCountdown() {
-        const now = new Date();
-        const day = now.getUTCDay();
-        const daysUntilNextSunday = day === 0 ? 7 : 7 - day;
-        const nextSunday = new Date(Date.UTC(
-          now.getUTCFullYear(),
-          now.getUTCMonth(),
-          now.getUTCDate() + daysUntilNextSunday,
-          0, 0, 0
-        ));
-        const diff = nextSunday - now;
-        if (diff <= 0) {
-          timer.textContent = "🔄 Reset in progress...";
-          return;
-        }
-        const totalSeconds = Math.floor(diff / 1000);
-        const days = Math.floor(totalSeconds / 86400);
-        const hours = Math.floor((totalSeconds % 86400) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        timer.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-      }
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    }
-    startCountdown();
+  // === Restart lock system ===
+  function checkRestartWindow() {
+    const now = getSASTDate();
+    const day = now.getDay();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
 
-    // === Handle Free/Paid visibility ===
-    const paidFields = document.getElementById("paidFields");
-    if (IS_FREE) {
-      paidFields.style.display = "none";
+    const output = document.getElementById("output");
+    const inputs = document.querySelectorAll("input, button");
+    const countdown = document.getElementById("timer");
+
+    if (day === 0 && hour === RESTART_HOUR_SAST && minute < RESTART_DURATION_MINUTES) {
+      // Within restart hour
+      inputs.forEach(el => el.disabled = true);
+      const remaining = RESTART_DURATION_MINUTES * 60 - (minute * 60 + now.getSeconds());
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+      output.textContent = `🛠️ Server restart — please come back after countdown.\nUnlocks in ${mins}m ${secs}s`;
+      output.style.color = "#fbbf24";
+      countdown.textContent = `Restart ends in ${mins}m ${secs}s`;
     } else {
-      paidFields.style.display = "block";
+      // Normal operation
+      inputs.forEach(el => el.disabled = false);
+    }
+  }
+
+  // Check every second
+  setInterval(checkRestartWindow, 1000);
+
+  // === Verify ===
+  async function verify() {
+    const amount = document.getElementById("amount").value.trim();
+    const hash = document.getElementById("hash").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const output = document.getElementById("output");
+
+    const intlPhoneRegex = /^[1-9]\d{7,14}$/;
+
+    if (!phone) {
+      output.textContent = "⚠️ Please enter a phone number.";
+      output.style.color = "#f87171";
+      return;
+    } else if (!intlPhoneRegex.test(phone)) {
+      output.textContent = "⚠️ (e.g., 27884xxxxxx).";
+      output.style.color = "#f87171";
+      return;
     }
 
-    // === Verify ===
-    async function verify() {
-      const amount = document.getElementById("amount").value.trim();
-      const hash = document.getElementById("hash").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const output = document.getElementById("output");
-
-      // === International phone number validation (digits only) ===
-      const intlPhoneRegex = /^[1-9]\d{7,14}$/; 
-
-      if (!phone) {
-        output.textContent = "⚠️ Please enter a phone number.";
-        output.style.color = "#f87171";
-        return;
-      } else if (!intlPhoneRegex.test(phone)) {
-        output.textContent = "⚠️ Please enter a valid international phone number (e.g., 27884xxxxxx).";
-        output.style.color = "#f87171";
-        return;
-      }
-
-      if (!IS_FREE && (!amount || !hash)) {
-        output.textContent = "⚠️ Please provide amount and Base64 hash in Paid Mode.";
-        output.style.color = "#f87171";
-        return;
-      }
-
-      output.textContent = "⏳ Transmitting data... Awaiting server verification...";
-      output.style.color = "#e2e8f0";
-
-      try {
-        const payload = IS_FREE
-          ? { free: true, phoneNumber: phone }
-          : { free: false, value: amount, hash, phoneNumber: phone };
-
-        const res = await fetch('/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-
-        if (data.ok) {
-          output.textContent = `✅ SUCCESS\nMode: ${IS_FREE ? "Free" : "Paid"}\nMessage: ${data.message || "Verified successfully."}`;
-          output.style.color = "#63e6be";
-        } else {
-          output.textContent = `❌ FAILED\nReason: ${data.reason || data.error || "Unknown error"}`;
-          output.style.color = "#f87171";
-        }
-      } catch (err) {
-        output.textContent = "❌ Network Error: " + err.message;
-        output.style.color = "#f87171";
-      }
+    if (!IS_FREE && (!amount || !hash)) {
+      output.textContent = "⚠️ Please provide amount and Base64 hash in Paid Mode.";
+      output.style.color = "#f87171";
+      return;
     }
 
+    output.textContent = "⏳ Transmitting data... Awaiting server verification...";
+    output.style.color = "#e2e8f0";
 
-  </script>
+    try {
+      const payload = IS_FREE
+        ? { free: true, phoneNumber: phone }
+        : { free: false, value: amount, hash, phoneNumber: phone };
 
-  <style>
-    .box { max-width:480px; margin:24px auto; padding:18px; background:#0b1020; color:#e2e8f0; border-radius:12px; font-family:Arial, sans-serif; }
-    input, button { width:100%; padding:8px; margin:6px 0 12px; border-radius:6px; border:1px solid #23303f; background:#071028; color:#e2e8f0; }
-    button { background:#0ea5a6; border:none; cursor:pointer; color:#02121a; font-weight:600; }
-    .info-section { margin-top:16px; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; }
-    .footer { margin-top:10px; font-size:12px; text-align:center; opacity:0.6; }
-    .download-btn { display:inline-block; margin-top:8px; padding:8px 10px; background:#063; color:#fff; border-radius:6px; text-decoration:none; }
-  </style>
+      const res = await fetch('/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        output.textContent = `✅ SUCCESS\nMode: ${IS_FREE ? "Free" : "Paid"}\nMessage: ${data.message || "Verified successfully."}`;
+        output.style.color = "#63e6be";
+      } else {
+        output.textContent = `❌ FAILED\nReason: ${data.reason || data.error || "Unknown error"}`;
+        output.style.color = "#f87171";
+      }
+    } catch (err) {
+      output.textContent = "❌ Network Error: " + err.message;
+      output.style.color = "#f87171";
+    }
+  }
+</script>
+
 </body>
 
 </html>
