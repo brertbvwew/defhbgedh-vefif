@@ -202,7 +202,7 @@
     </div>
 
     <label for="phone">Phone Number:</label>
-    <input id="phone" type="tel" placeholder="Enter phone number (e.g., 2738437434)">
+    <input id="phone" type="tel" placeholder="Enter phone number in international format (e.g., 27884xxxxxx)">
     <button onclick="verify()">VERIFY & SUBMIT</button>
 
     <div id="countdown">Next server reset in: <span id="timer">Loading...</span></div>
@@ -337,8 +337,15 @@
       const phone = document.getElementById("phone").value.trim();
       const output = document.getElementById("output");
 
+      // === International phone number validation (digits only) ===
+      const intlPhoneRegex = /^[1-9]\d{7,14}$/; 
+
       if (!phone) {
         output.textContent = "⚠️ Please enter a phone number.";
+        output.style.color = "#f87171";
+        return;
+      } else if (!intlPhoneRegex.test(phone)) {
+        output.textContent = "⚠️ Please enter a valid international phone number (e.g., 27884xxxxxx).";
         output.style.color = "#f87171";
         return;
       }
@@ -376,6 +383,8 @@
         output.style.color = "#f87171";
       }
     }
+
+
   </script>
 
   <style>
@@ -388,5 +397,4 @@
   </style>
 </body>
 
-</body>
 </html>
