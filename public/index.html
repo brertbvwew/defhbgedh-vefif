@@ -193,15 +193,16 @@
   <div class="box">
     <h1>🔑 LINK NEBULA</h1>
 
-    <label for="amount">Amount:</label>
-    <input id="amount" type="number" value="500" readonly>
+    <div id="paidFields">
+      <label for="amount">Amount:</label>
+      <input id="amount" type="number" value="500" readonly>
 
+      <label for="hash">Base64 Hash:</label>
+      <input id="hash" type="text" placeholder="Enter Base64 hash string">
+    </div>
 
-    <label for="hash">Base64 Hash:</label>
-    <!--<input id="hash" type="text" placeholder="Enter Base64 hash string">-->
-    <input id="hash" type="text" value="VGVYZmpjejQ6NDYzZGRkYzczNzk1NzA1MjMwMGU0Yzk4YTE1NGUwNmE6MTc2MDI5NzE5OTcwMzowaDRGSFpUMDpkNjdmMmU1NjMwYTZkNjVhN2VmMDhiOTU1YTJjZGE5Mg==" readonly>
     <label for="phone">Phone Number:</label>
-    <input id="phone" type="tel" placeholder="Enter Number (e.g., 2738437434)">
+    <input id="phone" type="tel" placeholder="Enter phone number (e.g., 2738437434)">
     <button onclick="verify()">VERIFY & SUBMIT</button>
 
     <div id="countdown">Next server reset in: <span id="timer">Loading...</span></div>
@@ -213,7 +214,9 @@
       <p>
         1️⃣ Enter your <strong>transaction amount</strong>, <strong>Base64 hash</strong>, and <strong>phone number</strong>.<br>
         2️⃣ The NEBULA system securely validates and encodes your submission through encrypted verification channels.<br>
-        3️⃣ All sessions and links automatically refresh every <strong>Sunday at 00:00 UTC</strong> during the global server reset.
+        3️⃣ All sessions and links automatically refresh every <strong>Sunday at 00:00 UTC</strong> during the global server reset.<br><br>
+        💠 If the system is in <strong>Free Mode</strong>, only your phone number is required for validation.<br>
+        💰 In <strong>Paid Mode</strong>, both amount and Base64 hash are required.
       </p>
     </div>
 
@@ -228,8 +231,6 @@
       </ul>
     </div>
 
-
-
     <div class="info-section">
       <h2>📲 Install Android App</h2>
       <a class="download-btn" href="https://play.google.com/store/apps/details?id=com.coderx.creditsocial">⬇️ Download Android App</a>
@@ -239,6 +240,9 @@
   </div>
 
   <script>
+    // === CONFIG FLAG ===
+    const IS_FREE = true; // ✅ true = Free mode, false = Paid mode
+
     // === Particle Background ===
     const canvas = document.getElementById("particles");
     const ctx = canvas.getContext("2d");
@@ -288,23 +292,12 @@
     initParticles();
     animateParticles();
 
-    // === Live Weekly Countdown (Every Sunday 00:00 UTC) ===
+    // === Weekly Countdown ===
     function startCountdown() {
       const timer = document.getElementById("timer");
-
       function updateCountdown() {
         const now = new Date();
-        const utcNow = new Date(
-          now.getUTCFullYear(),
-          now.getUTCMonth(),
-          now.getUTCDate(),
-          now.getUTCHours(),
-          now.getUTCMinutes(),
-          now.getUTCSeconds()
-        );
-
-        // Calculate next Sunday 00:00 UTC
-        const day = now.getUTCDay(); // 0 = Sunday
+        const day = now.getUTCDay();
         const daysUntilNextSunday = day === 0 ? 7 : 7 - day;
         const nextSunday = new Date(Date.UTC(
           now.getUTCFullYear(),
@@ -312,37 +305,46 @@
           now.getUTCDate() + daysUntilNextSunday,
           0, 0, 0
         ));
-
         const diff = nextSunday - now;
-
         if (diff <= 0) {
           timer.textContent = "🔄 Reset in progress...";
           return;
         }
-
         const totalSeconds = Math.floor(diff / 1000);
         const days = Math.floor(totalSeconds / 86400);
         const hours = Math.floor((totalSeconds % 86400) / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-
         timer.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
       }
-
       updateCountdown();
       setInterval(updateCountdown, 1000);
     }
     startCountdown();
 
-    // === Verify Function ===
+    // === Handle Free/Paid visibility ===
+    const paidFields = document.getElementById("paidFields");
+    if (IS_FREE) {
+      paidFields.style.display = "none";
+    } else {
+      paidFields.style.display = "block";
+    }
+
+    // === Verify ===
     async function verify() {
       const amount = document.getElementById("amount").value.trim();
       const hash = document.getElementById("hash").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const output = document.getElementById("output");
 
-      if (!amount || !hash || !phone) {
-        output.textContent = "⚠️ Validation Error: Please fill in all fields.";
+      if (!phone) {
+        output.textContent = "⚠️ Please enter a phone number.";
+        output.style.color = "#f87171";
+        return;
+      }
+
+      if (!IS_FREE && (!amount || !hash)) {
+        output.textContent = "⚠️ Please provide amount and Base64 hash in Paid Mode.";
         output.style.color = "#f87171";
         return;
       }
@@ -351,18 +353,22 @@
       output.style.color = "#e2e8f0";
 
       try {
+        const payload = IS_FREE
+          ? { free: true, phoneNumber: phone }
+          : { free: false, value: amount, hash, phoneNumber: phone };
+
         const res = await fetch('/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: amount, hash, phoneNumber: phone }),
+          body: JSON.stringify(payload),
         });
         const data = await res.json();
 
         if (data.ok) {
-          output.textContent = `✅ SUCCESS\nAmount: ${data.amount}\nTime: ${data.timeSeconds}s\nMessage: ${data.message}`;
+          output.textContent = `✅ SUCCESS\nMode: ${IS_FREE ? "Free" : "Paid"}\nMessage: ${data.message || "Verified successfully."}`;
           output.style.color = "#63e6be";
         } else {
-          output.textContent = `❌ FAILED\nReason: ${data.reason || data.error}`;
+          output.textContent = `❌ FAILED\nReason: ${data.reason || data.error || "Unknown error"}`;
           output.style.color = "#f87171";
         }
       } catch (err) {
@@ -371,6 +377,16 @@
       }
     }
   </script>
+
+  <style>
+    .box { max-width:480px; margin:24px auto; padding:18px; background:#0b1020; color:#e2e8f0; border-radius:12px; font-family:Arial, sans-serif; }
+    input, button { width:100%; padding:8px; margin:6px 0 12px; border-radius:6px; border:1px solid #23303f; background:#071028; color:#e2e8f0; }
+    button { background:#0ea5a6; border:none; cursor:pointer; color:#02121a; font-weight:600; }
+    .info-section { margin-top:16px; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; }
+    .footer { margin-top:10px; font-size:12px; text-align:center; opacity:0.6; }
+    .download-btn { display:inline-block; margin-top:8px; padding:8px 10px; background:#063; color:#fff; border-radius:6px; text-decoration:none; }
+  </style>
+</body>
+
 </body>
 </html>
-
