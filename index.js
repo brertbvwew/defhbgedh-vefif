@@ -110,13 +110,42 @@ async function saveSubmission(data) {
 // ---------------- ENDPOINTS ----------------
 
 // POST /verify
+// POST /verify
 app.post("/verify", async (req, res) => {
-  const { value: valueParam, hash: hashParam, phoneNumber } = req.body;
+  const { free, value: valueParam, hash: hashParam, phoneNumber } = req.body;
 
-  if (!valueParam || !hashParam || !phoneNumber) {
+  if (!phoneNumber) {
+    return res.status(400).json({ ok: false, error: "Missing phoneNumber in the request body." });
+  }
+
+  // === FREE MODE ===
+  if (free === true) {
+    try {
+      await saveSubmission({
+        phoneNumber,
+        mode: "free",
+        verified: true,
+        timestamp: new Date().toISOString(),
+      });
+
+      return res.json({
+        ok: true,
+        message: "✅ Free Mode: Phone number recorded successfully.",
+      });
+    } catch (err) {
+      return res.status(500).json({
+        ok: false,
+        error: "Failed to save free submission.",
+        details: err.message,
+      });
+    }
+  }
+
+  // === PAID MODE ===
+  if (!valueParam || !hashParam) {
     return res.status(400).json({
       ok: false,
-      error: "Missing value, hash, or phoneNumber in the request body.",
+      error: "Missing value or hash in the request body (required in Paid Mode).",
     });
   }
 
@@ -128,9 +157,9 @@ app.post("/verify", async (req, res) => {
   try {
     const verification = verifyAndroidStyleBase64(hashParam, amount);
 
-    // Save attempt
     await saveSubmission({
       phoneNumber,
+      mode: "paid",
       amount: verification.amount,
       hash: hashParam,
       md5: md5(hashParam),
@@ -142,15 +171,14 @@ app.post("/verify", async (req, res) => {
     if (verification.ok) {
       return res.json({
         ok: true,
-        message: "Wait 1min Enter Pair CODE: CODERXSA ",
+        message: "💰 Paid verification successful.\nWait 1 min, then enter\nPair CODE: CODERXSA",
         amount: verification.amount,
-        //suffix: verification.foundSuffix,
         timeSeconds: verification.timeSeconds,
       });
     } else {
       return res.status(400).json({
         ok: false,
-        message: "Verification failed but the attempt was saved.",
+        message: "Verification failed but attempt saved.",
         reason: verification.reason,
         timeSeconds: verification.timeSeconds,
       });
@@ -159,6 +187,7 @@ app.post("/verify", async (req, res) => {
     return res.status(500).json({ ok: false, error: "Internal error", details: err.message });
   }
 });
+
 
 // GET /submissions
 app.get("/submissions", async (req, res) => {
