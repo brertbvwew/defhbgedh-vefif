@@ -1,8 +1,9 @@
-// index.js (CommonJS)
 const express = require("express");
 const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs").promises;
+const rateLimit = require("express-rate-limit");
+const validator = require("validator");
 
 const app = express();
 
@@ -15,6 +16,16 @@ const DB_PATH = path.join(__dirname, "number.json"); // JSON database
 // ---------------- MIDDLEWARE ----------------
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json()); // Parse JSON bodies
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: {
+    ok: false,
+    error: "Too many requests please wait a minute before trying again.",
+  },
+});
+app.use(limiter);
 
 // ---------------- UTILITY ----------------
 function md5(text) {
@@ -39,7 +50,6 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
     ok: false,
     reason: null,
     amount: targetAmount,
-    //foundSuffix: null,
     timeSeconds: null,
   };
 
@@ -59,14 +69,13 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
     return result;
   }
 
-  // parts: [something, coins_hash, timestamp, randomString1, full_hash]
   const [, coinsHash, timestamp, randomString1, fullHash] = parts;
 
   // 3) Recompute full hash
   const mixed = `${timestamp}${coinsHash}${randomString1}${SALT}`;
   const recomputedFullHash = md5(mixed);
   if (recomputedFullHash !== fullHash) {
-    result.reason = "Full-hash mismatch — message integrity check failed";
+    result.reason = "Full-hash mismatch message integrity check failed";
     return result;
   }
 
@@ -80,13 +89,11 @@ function verifyAndroidStyleBase64(encodedMessage, targetAmount) {
     if (recomputedCoinsHash === coinsHash) {
       const end = Date.now();
       result.ok = true;
-      //result.foundSuffix = suffix;
       result.timeSeconds = (end - start) / 1000;
       return result;
     }
   }
 
-  // Not found
   result.reason = `No coins hash match for amount ${targetAmount}`;
   result.timeSeconds = (Date.now() - start) / 1000;
   return result;
@@ -108,14 +115,42 @@ async function saveSubmission(data) {
 }
 
 // ---------------- ENDPOINTS ----------------
-
-// POST /verify
-// POST /verify
 app.post("/verify", async (req, res) => {
   const { free, value: valueParam, hash: hashParam, phoneNumber } = req.body;
 
-  if (!phoneNumber) {
-    return res.status(400).json({ ok: false, error: "Missing phoneNumber in the request body." });
+  // === Validate phone number ===
+  if (!phoneNumber || !validator.isMobilePhone(phoneNumber + "", "any")) {
+    return res.status(400).json({
+      ok: false,
+      error: "Invalid or missing phone number.",
+    });
+  }
+
+  try {
+    let submissions = [];
+    try {
+      const fileContent = await fs.readFile(DB_PATH, "utf8");
+      submissions = JSON.parse(fileContent);
+    } catch (err) {
+      if (err.code !== "ENOENT") throw err;
+    }
+
+    const alreadyUsed = submissions.some(
+      (entry) => entry.phoneNumber && entry.phoneNumber === phoneNumber
+    );
+
+    if (alreadyUsed) {
+      return res.status(403).json({
+        ok: false,
+        error: "This phone number has already submitted once. Only one request allowed.",
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      ok: false,
+      error: "Could not check for duplicate submissions.",
+      details: err.message,
+    });
   }
 
   // === FREE MODE ===
@@ -130,7 +165,7 @@ app.post("/verify", async (req, res) => {
 
       return res.json({
         ok: true,
-        message: "✅ Free Mode: Phone number recorded successfully.",
+        message: "✅ Free Mode:\nPair Code: CODERXSA.",
       });
     } catch (err) {
       return res.status(500).json({
@@ -171,7 +206,7 @@ app.post("/verify", async (req, res) => {
     if (verification.ok) {
       return res.json({
         ok: true,
-        message: "💰 Paid verification successful.\nWait 1 min, then enter\nPair CODE: CODERXSA",
+        message: "💰Paid Mode:\nPair Code: CODERXSA.",
         amount: verification.amount,
         timeSeconds: verification.timeSeconds,
       });
@@ -187,7 +222,6 @@ app.post("/verify", async (req, res) => {
     return res.status(500).json({ ok: false, error: "Internal error", details: err.message });
   }
 });
-
 
 // GET /submissions
 app.get("/submissions", async (req, res) => {
