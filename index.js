@@ -251,6 +251,43 @@ app.get("/submissions", async (req, res) => {
   }
 });
 
+// Add this near your other endpoints (requires express.json() already enabled)
+app.post("/admin/remove", async (req, res) => {
+  const adminPass = req.header("x-admin-pass");
+  const expected = process.env.ADMIN_PASSWORD || "$*R@#Fg@YGvbSA"; // set ADMIN_PASSWORD in env
+
+  if (!adminPass || adminPass !== expected) {
+    return res.status(401).json({ ok: false, error: "Unauthorized" });
+  }
+
+  const { phoneNumber } = req.body;
+  if (!phoneNumber)
+    return res.status(400).json({ ok: false, error: "phoneNumber required" });
+
+  try {
+    let submissions = [];
+    try {
+      const fileContent = await fs.readFile(DB_PATH, "utf8");
+      submissions = JSON.parse(fileContent);
+    } catch (err) {
+      if (err.code !== "ENOENT") throw err;
+    }
+
+    const filtered = submissions.filter(
+      (entry) => entry.phoneNumber !== phoneNumber
+    );
+    await fs.writeFile(DB_PATH, JSON.stringify(filtered, null, 2), "utf8");
+
+    return res.json({
+      ok: true,
+      message: "Removed successfully.",
+      removedCount: submissions.length - filtered.length,
+    });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: "Internal error" });
+  }
+});
+
 // ---------------- START SERVER ----------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
