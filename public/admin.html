@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel — Submissions</title>
+
+  <style>
+    /* === Modern Neon-Glass Aesthetic === */
+    :root {
+      --bg: #0d1117;
+      --card: rgba(22, 27, 34, 0.9);
+      --text: #e6eef8;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.25);
+      --border: rgba(255, 255, 255, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.15s ease;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 20% 30%, #0d1117 0%, #020617 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .brand {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, var(--accent), #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+    }
+
+    /* === Buttons === */
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .btn:hover {
+      background: #059669;
+      box-shadow: 0 0 10px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .btn.ghost:hover {
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .btn.danger {
+      background: var(--danger);
+      box-shadow: 0 0 8px var(--danger-glow);
+      color: #fff;
+    }
+
+    .btn.danger:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+    }
+
+    /* === Inputs === */
+    input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    /* === Messages === */
+    .msg {
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    .msg.ok {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border-left: 3px solid var(--accent);
+    }
+
+    .msg.err {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border-left: 3px solid var(--danger);
+    }
+
+    /* === Table === */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .phone {
+      font-family: monospace;
+      letter-spacing: 0.3px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* === Utility === */
+    .footer {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .fade {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      th,
+      td {
+        font-size: 12px;
+      }
+      .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="brand">Admin Panel</div>
+      <div class="small">Manage submissions — remove phone numbers</div>
+    </div>
+
+    <div class="card fade">
+      <!-- === Login Section === -->
+      <div id="loginArea">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <input id="adminPass" type="password" placeholder="Admin password" style="flex:1;" />
+          <button id="loginBtn" class="btn">Unlock</button>
+          <button id="logoutBtn" class="btn ghost" style="display:none;">Lock</button>
+        </div>
+        <div class="small" style="margin-top:8px;">
+          The password is sent only as an HTTP header. Keep it private.
+        </div>
+      </div>
+
+      <!-- === Control Section === -->
+      <div id="controls" style="display:none;margin-top:18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input id="search" placeholder="Filter by phone or mode..." />
+            <button id="refreshBtn" class="btn ghost">Refresh</button>
+          </div>
+          <div class="small">Submissions: <span id="count">0</span></div>
+        </div>
+
+        <div id="messageHolder"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Phone</th>
+              <th>Mode</th>
+              <th>Amount</th>
+              <th>Verified</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+
+        <div class="footer">Tip: Use the search to quickly find submissions. Deletions are permanent.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminPass = null;
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const adminPassInput = document.getElementById("adminPass");
+    const controls = document.getElementById("controls");
+    const messageHolder = document.getElementById("messageHolder");
+    const tbody = document.getElementById("tbody");
+    const countEl = document.getElementById("count");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const search = document.getElementById("search");
+    let currentList = [];
+
+    function showMsg(text, ok = true) {
+      messageHolder.innerHTML = `<div class="msg ${ok ? "ok" : "err"} fade">${text}</div>`;
+      setTimeout(() => (messageHolder.innerHTML = ""), 5000);
+    }
+
+    loginBtn.addEventListener("click", () => {
+      const v = adminPassInput.value.trim();
+      if (!v) return showMsg("Enter password", false);
+      adminPass = v;
+      adminPassInput.value = "";
+      document.getElementById("loginArea").style.display = "none";
+      controls.style.display = "block";
+      logoutBtn.style.display = "inline-block";
+      loadSubmissions();
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      adminPass = null;
+      document.getElementById("loginArea").style.display = "block";
+      controls.style.display = "none";
+      logoutBtn.style.display = "none";
+      tbody.innerHTML = "";
+      countEl.textContent = "0";
+      showMsg("Locked");
+    });
+
+    refreshBtn.addEventListener("click", loadSubmissions);
+    search.addEventListener("input", () => render(currentList));
+
+    async function loadSubmissions() {
+      try {
+        const r = await fetch("/submissions");
+        const json = await r.json();
+        if (!json.ok) return showMsg("Error loading submissions", false);
+        currentList = json.data || [];
+        render(currentList);
+        showMsg("Loaded successfully");
+      } catch (e) {
+        showMsg(e.message || e, false);
+      }
+    }
+
+    function render(list) {
+      const q = search.value.toLowerCase().trim();
+      const filtered = list.filter((i) =>
+        !q
+          ? true
+          : (i.phoneNumber || "").toLowerCase().includes(q) ||
+            (i.mode || "").toLowerCase().includes(q) ||
+            String(i.amount || "").includes(q)
+      );
+
+      countEl.textContent = filtered.length;
+      tbody.innerHTML = filtered
+        .map(
+          (item, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td class="phone">${item.phoneNumber || "—"}</td>
+          <td>${item.mode || "—"}</td>
+          <td>${item.amount ?? "—"}</td>
+          <td>${item.verified ? "✅" : "❌"}</td>
+          <td>${item.timestamp || "—"}</td>
+          <td class="actions">
+            <button class="btn ghost" data-act="copy" data-phone="${item.phoneNumber}">Copy</button>
+            <button class="btn danger" data-act="remove" data-phone="${item.phoneNumber}">Remove</button>
+          </td>
+        </tr>`
+        )
+        .join("");
+
+      tbody.querySelectorAll("button").forEach((btn) =>
+        btn.addEventListener("click", async () => {
+          const act = btn.dataset.act;
+          const phone = btn.dataset.phone;
+          if (act === "copy") {
+            await navigator.clipboard.writeText(phone);
+            showMsg("Copied!");
+          } else if (act === "remove") {
+            if (confirm(`Delete all submissions for ${phone}?`))
+              await doRemove(phone);
+          }
+        })
+      );
+    }
+
+    async function doRemove(phoneNumber) {
+      if (!adminPass) return showMsg("Not authenticated", false);
+      try {
+        const r = await fetch("/admin/remove", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-pass": adminPass,
+          },
+          body: JSON.stringify({ phoneNumber }),
+        });
+        const j = await r.json();
+        if (!r.ok) return showMsg(j.error || "Failed", false);
+        showMsg(j.message || "Removed");
+        await loadSubmissions();
+      } catch (e) {
+        showMsg("Network error: " + e.message, false);
+      }
+    }
+  </script>
+</body>
+</html>
