@@ -1,3 +1,4 @@
+
 const express = require("express");
 const crypto = require("crypto");
 const path = require("path");
@@ -119,14 +120,15 @@ app.post("/verify", async (req, res) => {
   const { free, value: valueParam, hash: hashParam, phoneNumber } = req.body;
 
   // === Validate phone number ===
-  if (!phoneNumber || !validator.isMobilePhone(phoneNumber + "", "any")) {
+  if (!phoneNumber || typeof phoneNumber !== "string" || !phoneNumber.trim()) {
     return res.status(400).json({
       ok: false,
-      error: "Invalid or missing phone number.",
+      error: "Missing phone number.",
     });
   }
 
   try {
+    // === Load existing submissions ===
     let submissions = [];
     try {
       const fileContent = await fs.readFile(DB_PATH, "utf8");
@@ -135,6 +137,7 @@ app.post("/verify", async (req, res) => {
       if (err.code !== "ENOENT") throw err;
     }
 
+    // === Check if phone number was already used ===
     const alreadyUsed = submissions.some(
       (entry) => entry.phoneNumber && entry.phoneNumber === phoneNumber
     );
@@ -222,6 +225,7 @@ app.post("/verify", async (req, res) => {
     return res.status(500).json({ ok: false, error: "Internal error", details: err.message });
   }
 });
+
 
 // GET /submissions
 app.get("/submissions", async (req, res) => {
