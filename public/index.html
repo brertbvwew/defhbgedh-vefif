@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NEBULA || LINK</title>
+  <title>NEBULA HOST || Server Link</title>
   <style>
     * {
       box-sizing: border-box;
@@ -17,7 +17,8 @@
     }
 
     body {
-      background: radial-gradient(circle at 20% 20%, #0a0f2a, #000000 90%);
+      /* Updated gradient: Deeper blues and purples */
+      background: radial-gradient(circle at 20% 20%, #0d112b, #0a0b1f 90%);
       color: #e2e8f0;
       font-family: "Poppins", system-ui, sans-serif;
       display: flex;
@@ -30,22 +31,25 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      opacity: 0.8;
+      opacity: 0.6; /* Softened particles */
     }
 
     h1 {
-      color: #63e6be;
+      /* Changed to a bright blue accent */
+      color: #7dd3fc;
       text-align: center;
       margin-bottom: 30px;
       letter-spacing: 2px;
       font-weight: 800;
-      text-shadow: 0 0 10px #63e6be, 0 0 30px rgba(99, 230, 190, 0.4);
+      text-shadow: 0 0 10px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.4);
     }
 
     .box {
-      backdrop-filter: blur(45px) saturate(180%);
-      background: linear-gradient(135deg, rgba(25,38,59,0.35), rgba(10,15,25,0.45));
-      border: 1px solid rgba(99,230,190,0.25);
+      backdrop-filter: blur(30px) saturate(150%);
+      /* Updated gradient: More transparent and blue/purple */
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.35), rgba(28, 18, 55, 0.45));
+      /* Updated border: Bright blue */
+      border: 1px solid rgba(59, 130, 246, 0.25);
       border-radius: 25px;
       padding: 45px;
       width: 90%;
@@ -55,7 +59,7 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
       z-index: 2;
-      box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 60px rgba(99,230,190,0.25);
+      box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 60px rgba(59, 130, 246, 0.25);
     }
 
     .box::-webkit-scrollbar {
@@ -67,6 +71,7 @@
       margin-top: 18px;
       color: #94a3b8;
       font-weight: 500;
+      font-size: 0.9rem;
     }
 
     input {
@@ -74,8 +79,9 @@
       padding: 14px;
       margin-top: 8px;
       border-radius: 12px;
-      border: 1px solid rgba(99,230,190,0.1);
-      background: rgba(15,23,42,0.45);
+      /* Darker border, darker background */
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      background: rgba(10, 15, 30, 0.5);
       color: #fff;
       font-size: 1rem;
       outline: none;
@@ -83,9 +89,10 @@
     }
 
     input:focus {
-      border-color: #63e6be;
-      background: rgba(15,23,42,0.6);
-      box-shadow: 0 0 12px rgba(99,230,190,0.6);
+      /* Updated focus: Bright blue */
+      border-color: #3b82f6;
+      background: rgba(10, 15, 30, 0.7);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
     }
 
     button {
@@ -97,17 +104,19 @@
       border-radius: 14px;
       font-weight: 700;
       cursor: pointer;
-      color: #0f172a;
-      background: linear-gradient(90deg, #63e6be, #3b82f6, #7dd3fc);
+      color: #ffffff; /* Brighter text */
+      /* Updated gradient: Blue to Purple/Pink, matching wisehosting style */
+      background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899);
       background-size: 200% 100%;
-      box-shadow: 0 4px 25px rgba(99,230,190,0.45);
+      /* Updated shadow: Matches new gradient */
+      box-shadow: 0 4px 25px rgba(59, 130, 246, 0.45);
       transition: 0.3s;
     }
 
     button:hover {
       background-position: right center;
       transform: translateY(-3px);
-      box-shadow: 0 0 40px rgba(99,230,190,0.65);
+      box-shadow: 0 0 40px rgba(168, 85, 247, 0.65);
     }
 
     /* Countdown styling */
@@ -122,37 +131,91 @@
     }
 
     @keyframes glow {
-      from { text-shadow: 0 0 5px #63e6be, 0 0 10px #3b82f6; }
-      to { text-shadow: 0 0 15px #7dd3fc, 0 0 30px #63e6be; }
+      /* Updated glow: Blue to Purple */
+      from { text-shadow: 0 0 5px #3b82f6, 0 0 10px #a855f7; }
+      to { text-shadow: 0 0 15px #3b82f6, 0 0 30px #a855f7; }
     }
 
     pre {
       margin-top: 30px;
-      background: rgba(8,11,25,0.65);
+      background: rgba(8,11,25,0.75); /* Darker background */
       padding: 20px;
       border-radius: 12px;
-      border: 1px solid rgba(56,189,248,0.15);
+      border: 1px solid rgba(59, 130, 246, 0.2); /* Blue border */
       font-size: 0.9rem;
-      color: #93c5fd;
+      color: #93c5fd; /* Light blue text */
       line-height: 1.6;
     }
+    
+    /* === UPDATED SERVER SPECS === */
+    .specs-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
 
+    .spec-card {
+      /* Darker, cleaner card background */
+      background: rgba(15, 23, 42, 0.6);
+      /* Bright blue top border, like wisehosting cards */
+      border-top: 3px solid #3b82f6;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .spec-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .spec-icon {
+      font-size: 2.2rem; /* Slightly smaller */
+      margin-bottom: 10px;
+      line-height: 1;
+      color: #7dd3fc; /* Icon color */
+    }
+
+    .spec-title {
+      font-weight: 600;
+      color: #94a3b8; /* Subdued title */
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-value {
+      color: #e2e8f0;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    /* === END UPDATED SPECS === */
+
+    /* === UPDATED INFO SECTION === */
     .info-section {
       margin-top: 25px;
       padding: 20px;
       border-radius: 15px;
-      background: rgba(15,23,42,0.45);
-      border: 1px solid rgba(99,230,190,0.2);
+      background: rgba(15, 23, 42, 0.45);
+      /* Matching blue border */
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      /* Added top border for consistency */
+      border-top: 3px solid rgba(59, 130, 246, 0.5);
     }
 
     .info-section h2 {
-      color: #63e6be;
+      /* Bright blue heading */
+      color: #7dd3fc;
       text-align: center;
       margin-bottom: 10px;
     }
 
     .info-section p, .info-section ul {
-      color: #a5b4fc;
+      color: #a5b4fc; /* Kept light purple/blue text */
       font-size: 0.9rem;
     }
 
@@ -168,15 +231,17 @@
       padding: 12px 20px;
       border-radius: 12px;
       font-weight: 600;
-      color: #0f172a;
-      background: linear-gradient(90deg, #63e6be, #3b82f6);
+      color: #ffffff;
+      /* Updated gradient: Matches main button */
+      background: linear-gradient(90deg, #3b82f6, #a855f7);
       width: 80%;
       text-decoration: none;
       transition: 0.3s;
     }
 
     .download-btn:hover {
-      box-shadow: 0 0 25px rgba(99,230,190,0.4);
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
+      transform: translateY(-2px);
     }
 
     .footer {
@@ -191,7 +256,7 @@
   <canvas id="particles"></canvas>
 
   <div class="box">
-    <h1>🔑 LINK NEBULA</h1>
+    <h1>🚀 NEBULA HOST | Link System</h1>
 
     <div id="paidFields">
       <label for="amount">Amount:</label>
@@ -209,8 +274,30 @@
 
     <pre id="output">Status: Ready to receive data...</pre>
 
+    <div class="specs-container">
+      <div class="spec-card">
+        <div class="spec-icon">💻</div>
+        <div class="spec-title">Operating System</div>
+        <div class="spec-value">Ubuntu</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-icon">🖥️</div>
+        <div class="spec-title">Processor</div>
+        <div class="spec-value">Intel i5 / 4 Cores</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-icon">🧠</div>
+        <div class="spec-title">Memory</div>
+        <div class="spec-value">6 GB RAM</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-icon">💽</div>
+        <div class="spec-title">Storage</div>
+        <div class="spec-value">1 TB NVMe SSD</div>
+      </div>
+    </div>
     <div class="info-section">
-      <h2>⚙️ How It Works</h2>
+      <h2>⚙️ System Guide</h2>
       <p>
         1️⃣ Enter your <strong>phone number</strong>.<br>
         2️⃣ Wait 1min or less u will get whatsapp notification tap it.<br>
@@ -222,7 +309,7 @@
     </div>
 
     <div class="info-section">
-      <h2>📜 Rules</h2>
+      <h2>📜 Service Policy</h2>
       <ul>
         <li>⚠️ Linking on a reset day may result in data invalidation schedule responsibly.</li>
         <li>✔️ Verify that all submitted details are correct prior to submission.</li>
@@ -234,8 +321,8 @@
     </div>
 
     <div class="info-section">
-      <h2>📲 Install Android App</h2>
-      <a class="download-btn" href="https://play.google.com/store/apps/details?id=com.coderx.creditsocial">⬇️ Download Android App</a>
+      <h2>📲 Mobile Manager</h2>
+      <a class="download-btn" href="https://play.google.com/store/apps/details?id=com.coderx.creditsocial">⬇️ Download Mobile App</a>
     </div>
 
     <div class="footer">Secure Decode Interface v3.0</div>
@@ -274,7 +361,8 @@
       if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
     }
     draw() {
-      ctx.fillStyle = "rgba(99, 230, 190, 0.9)";
+      /* Updated particle color */
+      ctx.fillStyle = "rgba(59, 130, 246, 0.7)";
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fill();
@@ -287,6 +375,7 @@
   }
 
   function animateParticles() {
+    /* Updated background clear */
     ctx.fillStyle = "rgba(8, 10, 26, 0.25)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     particles.forEach(p => { p.update(); p.draw(); });
@@ -414,7 +503,7 @@
 
       if (data.ok) {
         output.textContent = `✅ SUCCESS\nMode: ${IS_FREE ? "Free" : "Paid"}\nMessage: ${data.message || "Verified successfully."}`;
-        output.style.color = "#63e6be";
+        output.style.color = "#63e6be"; /* Kept success green */
       } else {
         output.textContent = `❌ FAILED\nReason: ${data.reason || data.error || "Unknown error"}`;
         output.style.color = "#f87171";
