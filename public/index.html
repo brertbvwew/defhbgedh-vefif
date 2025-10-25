@@ -361,7 +361,6 @@
       if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
     }
     draw() {
-      /* Updated particle color */
       ctx.fillStyle = "rgba(59, 130, 246, 0.7)";
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -375,7 +374,6 @@
   }
 
   function animateParticles() {
-    /* Updated background clear */
     ctx.fillStyle = "rgba(8, 10, 26, 0.25)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     particles.forEach(p => { p.update(); p.draw(); });
@@ -391,30 +389,57 @@
     return new Date(now.getTime() + 2 * 60 * 60 * 1000); // Add 2 hours
   }
 
-  // === Countdown to next reset (for normal display) ===
-  function startCountdown() {
-    const timer = document.getElementById("timer");
-    function updateCountdown() {
-      const now = getSASTDate();
-      const day = now.getDay();
-      const daysUntilNextSunday = day === 0 ? 7 : 7 - day;
+// === Countdown to Saturday (Reconnect) + Sunday (Reset) ===
+function startCountdown() {
+  const timer = document.getElementById("timer");
 
-      const nextSunday8pm = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + daysUntilNextSunday,
-        RESTART_HOUR_SAST,
-        0,
-        0
-      );
+  // Add reconnect display below main countdown
+  const reconnectLine = document.createElement("div");
+  reconnectLine.id = "reconnectLine";
+  reconnectLine.style.marginTop = "5px";
+  reconnectLine.style.color = "#60a5fa";
+  reconnectLine.style.fontSize = "0.9rem";
+  timer.parentNode.appendChild(reconnectLine);
 
-      const diff = nextSunday8pm - now;
-      if (diff <= 0) {
-        timer.textContent = "🔄 Restart in progress...";
-        return;
-      }
+  function updateCountdown() {
+    const now = getSASTDate();
+    const day = now.getDay(); // 0=Sun, 6=Sat
 
-      const totalSeconds = Math.floor(diff / 1000);
+    // === Saturday 8PM (Reconnect) ===
+    let daysUntilSaturday = (7 - day + 7) % 7;
+    if (daysUntilSaturday === 0 && now.getHours() >= RESTART_HOUR_SAST)
+      daysUntilSaturday = 7; // next Saturday
+    const nextSaturday8pm = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + daysUntilSaturday,
+      RESTART_HOUR_SAST,
+      0,
+      0
+    );
+
+    // === Sunday 8PM (Server Reset) ===
+    let daysUntilSunday = (0 - day + 6) % 6;
+    if (daysUntilSunday === 0 && now.getHours() >= RESTART_HOUR_SAST)
+      daysUntilSunday = 6; // next Sunday
+    const nextSunday8pm = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + daysUntilSunday,
+      RESTART_HOUR_SAST,
+      0,
+      0
+    );
+
+    // === Time differences ===
+    const diffReconnect = nextSaturday8pm - now;
+    const diffReset = nextSunday8pm - now;
+
+    // --- RESET COUNTDOWN ---
+    if (diffReset <= 0) {
+      timer.textContent = "🔄 Server reset in progress...";
+    } else {
+      const totalSeconds = Math.floor(diffReset / 1000);
       const days = Math.floor(totalSeconds / 86400);
       const hours = Math.floor((totalSeconds % 86400) / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -422,11 +447,32 @@
       timer.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    // --- RECONNECT COUNTDOWN ---
+    if (diffReconnect <= 0 && diffReset > 0) {
+      reconnectLine.textContent =
+        "🔔 Reconnect window is now OPEN you can link your account before Sunday reset.";
+      reconnectLine.style.color = "#facc15"; // yellow highlight
+    } else if (diffReconnect > 0) {
+      const totalSeconds = Math.floor(diffReconnect / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      reconnectLine.textContent = `🔔 Reconnect window begins in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+      reconnectLine.style.color = "#60a5fa";
+    } else if (diffReset <= 0) {
+      reconnectLine.textContent =
+        "✅ Reconnect phase complete waiting for new cycle.";
+      reconnectLine.style.color = "#63e6be";
+    }
   }
 
-  startCountdown();
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
+startCountdown();
+
 
   // === Handle Free/Paid visibility ===
   const paidFields = document.getElementById("paidFields");
@@ -449,7 +495,7 @@
       const remaining = RESTART_DURATION_MINUTES * 60 - (minute * 60 + now.getSeconds());
       const mins = Math.floor(remaining / 60);
       const secs = remaining % 60;
-      output.textContent = `🛠️ Server restart — please come back after countdown.\nUnlocks in ${mins}m ${secs}s`;
+      output.textContent = `🛠️ Server restart please come back after countdown.\nUnlocks in ${mins}m ${secs}s`;
       output.style.color = "#fbbf24";
       countdown.textContent = `Restart ends in ${mins}m ${secs}s`;
     } else {
@@ -458,7 +504,6 @@
     }
   }
 
-  // Check every second
   setInterval(checkRestartWindow, 1000);
 
   // === Verify ===
@@ -503,7 +548,7 @@
 
       if (data.ok) {
         output.textContent = `✅ SUCCESS\nMode: ${IS_FREE ? "Free" : "Paid"}\nMessage: ${data.message || "Verified successfully."}`;
-        output.style.color = "#63e6be"; /* Kept success green */
+        output.style.color = "#63e6be";
       } else {
         output.textContent = `❌ FAILED\nReason: ${data.reason || data.error || "Unknown error"}`;
         output.style.color = "#f87171";
@@ -515,7 +560,7 @@
   }
 </script>
 
+
 </body>
 
 </html>
-
